@@ -26,5 +26,5 @@
 
 - [x] 5.1 `./gradlew :core:test :core:cliTest :app:testDebugUnitTest` 全绿
 - [x] 5.2 真机（TET-AN50）：装 debug 包，跑 usb-start.sh → 模拟「断电后杀助手」序列 → 验证标志置位、脚本与设置页文案切换、重跑脚本恢复手机操作
-- [ ] 5.3 请用户真拔插线一次，读 `/sdcard/mika_canary.log` 判定清理信号类型；起草 issue #312 根因评论（**发布前需用户确认**）
+- [x] 5.3 用户真拔插线一次，金丝雀判定完成：SIGKILL（忽略 TERM 的也被杀）、adbd 拔线时重启；issue #312 根因评论已起草（**发布前需用户确认**）
 - [ ] 5.4 分支 `fix/312-usb-helper-unplug`，中文提交信息；PR 描述关联 issue（**创建 PR 前需用户确认**）

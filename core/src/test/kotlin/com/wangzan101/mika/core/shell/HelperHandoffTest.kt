@@ -38,7 +38,7 @@ class HelperHandoffTest {
         val written = mutableListOf<String>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             HelperHandoff.usbScriptWrites(helper, gate.resets).collect { connected ->
-                written += HelperHandoff.usbFile(connected, "/a.apk", "p", 1, { "pin" }, gate::usbNonce, "/s.sh")
+                written += HelperHandoff.usbFile(connected, "/a.apk", "p", 1, { "pin" }, gate::usbNonce, "/s.sh", false)
             }
         }
         assertEquals(1, written.size)
@@ -196,7 +196,7 @@ class HelperHandoffTest {
 
     @Test
     fun usbScriptStartsTheSameHelperDetachedWithTheNonceOnStdin() {
-        val script = HelperHandoff.usbScript(apk, "com.wangzan101.mika", 10234, "ab'cd", "f00d", scriptPath)
+        val script = HelperHandoff.usbScript(apk, "com.wangzan101.mika", 10234, "ab'cd", "f00d", scriptPath, false)
         assertTrue(script.startsWith("#!/system/bin/sh\n"))
         // 和无线调试同一个入口、同样的参数;指纹里的单引号转义好;忽略挂断信号、另起会话、放到后台、输出丢掉
         assertTrue(
@@ -222,24 +222,45 @@ class HelperHandoffTest {
 
     @Test
     fun usbScriptQuotesEverythingItInterpolates() {
-        val script = HelperHandoff.usbScript("/a b/it's.apk", "p", 1, "pin", "n'; rm -rf /; '", scriptPath)
+        val script = HelperHandoff.usbScript("/a b/it's.apk", "p", 1, "pin", "n'; rm -rf /; '", scriptPath, false)
         assertTrue(script.contains("CLASSPATH='/a b/it'\\''s.apk'"))
         assertTrue(script.contains("n='n'\\''; rm -rf /; '\\'''"))
         assertFalse(script.contains("n='n'; rm"))
     }
 
     @Test
+    fun usbScriptTellsTheUnplugTruthPerDevice() {
+        // 没观察到拔线回收:不打包票,但给出停了之后怎么办
+        val default = HelperHandoff.usbScript(apk, "com.wangzan101.mika", 10234, "pin", "f00d", scriptPath, false)
+        assertTrue(default.contains("On most phones it keeps running after you unplug the cable"))
+        assertTrue(default.contains("run this command again"))
+        assertFalse(default.contains("It keeps running after you unplug the cable."))
+        // 观察到过:照实说这台手机拔线会停,插线重跑即恢复
+        val reaped = HelperHandoff.usbScript(apk, "com.wangzan101.mika", 10234, "pin", "f00d", scriptPath, true)
+        assertTrue(reaped.contains("On this phone the helper stops when you unplug the cable"))
+        assertTrue(reaped.contains("To use phone control again, plug in and run this command again"))
+        assertFalse(reaped.contains("On most phones it keeps running"))
+        // 口令与启动命令两种说法下都一样
+        assertEquals(1, reaped.split("f00d").size - 1)
+    }
+
+    @Test
     fun connectedGetsAStubWithoutANonce() {
         var asked = 0
-        val stub = HelperHandoff.usbFile(true, apk, "com.wangzan101.mika", 10234, { asked++; "pin" }, { asked++; "secret" }, scriptPath)
+        val stub = HelperHandoff.usbFile(true, apk, "com.wangzan101.mika", 10234, { asked++; "pin" }, { asked++; "secret" }, scriptPath, false)
         assertEquals(0, asked)
         assertFalse(stub.contains("secret"))
         assertFalse(stub.contains("app_process"))
         assertTrue(stub.contains("already running"))
         assertTrue(stub.contains("pidof 'com.wangzan101.mika:helper'"))
-        val live = HelperHandoff.usbFile(false, apk, "com.wangzan101.mika", 10234, { "pin" }, { "secret" }, scriptPath)
+        val live = HelperHandoff.usbFile(false, apk, "com.wangzan101.mika", 10234, { "pin" }, { "secret" }, scriptPath, false)
         assertTrue(live.contains("n='secret'"))
         assertTrue(live.contains("app_process"))
+        // 学到「拔线回收」后只有带口令的脚本换说法,stub 不变
+        val reapedStub = HelperHandoff.usbFile(true, apk, "com.wangzan101.mika", 10234, { "pin" }, { "secret" }, scriptPath, true)
+        assertEquals(stub, reapedStub)
+        val reapedLive = HelperHandoff.usbFile(false, apk, "com.wangzan101.mika", 10234, { "pin" }, { "secret" }, scriptPath, true)
+        assertTrue(reapedLive.contains("On this phone the helper stops"))
     }
 
     @Test

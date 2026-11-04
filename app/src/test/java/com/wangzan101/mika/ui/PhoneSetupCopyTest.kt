@@ -40,6 +40,11 @@ class PhoneSetupCopyTest {
             ),
         )
         HelperRestart.entries.forEach { add(PhoneSetupCopy.successNote(it)); add(PhoneSetupCopy.usageNote(it)) }
+        // 学到「这台手机拔线回收助手」后的如实版本也过一遍同样的检查
+        HelperRestart.entries.forEach {
+            add(PhoneSetupCopy.successNote(it, unplugReaps = true)); add(PhoneSetupCopy.usageNote(it, unplugReaps = true))
+        }
+        add(PhoneSetupCopy.usbCard(HelperRestart.UsbCommand, unplugReaps = true).second)
         suspects.forEach { add(PhoneSetupCopy.suspect(it)); add(PhoneSetupCopy.goBackTo(it.step)) }
         addAll(PhoneSetupCopy.NOTIFY_GUIDE)
         BuiltinShellFailure.entries.forEach { add(PhoneSetupCopy.notifyRetry(it)) }
@@ -108,8 +113,8 @@ class PhoneSetupCopyTest {
         allText().forEach { t ->
             assertTrue("empty copy", t.isNotBlank())
             jargon.forEach { j -> if (!(j == "端口" && t == portAllowed)) assertFalse("「$j」 in: $t", t.contains(j, ignoreCase = true)) }
-            // 只有系统里那个选项名本身带 adb
-            if (t.contains("adb")) assertTrue(t, t.contains("「停用 adb 授权超时功能」"))
+            // 只有系统里那个选项名带 adb;「改用电脑启动」卡片的说明引用 adb 命令本身,也算
+            if (t.contains("adb")) assertTrue(t, t.contains("「停用 adb 授权超时功能」") || t.contains("adb 命令"))
         }
     }
 
@@ -143,5 +148,25 @@ class PhoneSetupCopyTest {
         assertEquals("找不到无线调试？", PhoneSetupCopy.USB_ASK)
         assertTrue(PhoneSetupCopy.USB_BODY.contains("数据线"))
         assertTrue(PhoneSetupCopy.USB_BODY.contains("重启后"))
+    }
+
+    /** 学到「这台手机拔线回收助手」后:成功页、设置页和卡片都照实说拔线会停、插线重跑即恢复,不再说拔线也能继续用。 */
+    @Test
+    fun reapedOnUnplugCopyTellsTheTruth() {
+        listOf(
+            PhoneSetupCopy.successNote(HelperRestart.UsbCommand, unplugReaps = true),
+            PhoneSetupCopy.usageNote(HelperRestart.UsbCommand, unplugReaps = true),
+            PhoneSetupCopy.usbCard(HelperRestart.UsbCommand, unplugReaps = true).second,
+        ).forEach { t ->
+            assertTrue(t, t.contains("拔掉数据线"))
+            assertTrue(t, t.contains("再运行一次"))
+            assertFalse(t, t.contains("也会继续运行"))
+        }
+        // 没学到的设备上维持原话
+        assertFalse(PhoneSetupCopy.successNote(HelperRestart.UsbCommand).contains("拔掉数据线"))
+        assertTrue(PhoneSetupCopy.usageNote(HelperRestart.UsbCommand).contains("也会继续运行"))
+        // 只影响 USB 启动的那几处
+        assertEquals(PhoneSetupCopy.successNote(HelperRestart.Wireless, unplugReaps = true), PhoneSetupCopy.successNote(HelperRestart.Wireless))
+        assertEquals(PhoneSetupCopy.usageNote(HelperRestart.Wireless, unplugReaps = true), PhoneSetupCopy.usageNote(HelperRestart.Wireless))
     }
 }

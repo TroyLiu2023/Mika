@@ -41,6 +41,8 @@ data class SystemStatus(
     val restrictedSettings: Boolean = false,
     /** 助手停了以后靠什么再起来:只用 USB 启动命令起过时,各处都不往无线调试引,说清要再运行命令。 */
     val helperRestart: HelperRestart = HelperRestart.None,
+    /** 这台手机拔线会回收 USB 启动的助手(观察过一次后持久化):相关提示照实说拔线会停、插线重跑命令即恢复。 */
+    val unplugReapsHelper: Boolean = false,
     /** 开机后用户还没解锁过一次([android.os.UserManager.isUserUnlocked] 为假):无障碍服务这时本来就绑不上。 */
     val userLocked: Boolean = false,
 )

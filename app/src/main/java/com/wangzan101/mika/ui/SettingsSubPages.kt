@@ -116,7 +116,7 @@ fun PhoneOpsScreen(
                     onClick = if (paired) ({ confirmUnpair = true }) else null,
                 )
             }
-            FooterNote(PhoneSetupCopy.usageNote(status.helperRestart))
+            FooterNote(PhoneSetupCopy.usageNote(status.helperRestart, status.unplugReapsHelper))
         }
     }
     if (confirmUnpair) {

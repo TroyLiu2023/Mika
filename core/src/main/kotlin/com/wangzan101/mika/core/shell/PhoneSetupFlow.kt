@@ -47,6 +47,7 @@ enum class PairingNotifyIssue {
  * [usbAsked] 是用户点了「找不到无线调试?」,或卡片已经出现过(出现后不再收回,免得一会儿有一会儿没)。
  * [restart] 是助手停了以后靠什么再起来(见 [HelperRestart]):只用 USB 启动命令起过时,无线调试和配对两步记作跳过,
  * 助手停了就停在连接一步说它停了、给命令,不退回无线调试一步。
+ * [unplugReaps] 是这台手机拔线会回收 USB 启动的助手(观察过一次后持久化):成功页和「改用电脑启动」卡片照实说拔线会停。
  * [developerSettingsMissing] 是系统里打不开「开发者选项」页(跳过去的 Intent 没有页面接):和 [wirelessMissing] 一起成立时,
  * 用户既开不了 USB 调试也开不了无线调试,见 [PhoneSetupFlow.unavailable]。
  */
@@ -68,6 +69,7 @@ data class SetupInputs(
     val stalledMs: Long = 0L,
     val usbAsked: Boolean = false,
     val restart: HelperRestart = HelperRestart.None,
+    val unplugReaps: Boolean = false,
     val developerSettingsMissing: Boolean = false,
 )
 
@@ -96,6 +98,8 @@ data class SetupView(
     val usbFallback: Boolean = false,
     /** 助手停了以后靠什么再起来(照抄 [SetupInputs.restart]):成功页的提醒、「改用电脑启动」卡片怎么说看它。 */
     val restart: HelperRestart = HelperRestart.None,
+    /** 照抄 [SetupInputs.unplugReaps]:成功页的提醒、「改用电脑启动」卡片照实说拔线会停。 */
+    val unplugReaps: Boolean = false,
 ) {
     /** 通知发不出来(没允许,或「配对」通知被关):配对码要填在通知里,先修好。 */
     val needsNotifications: Boolean
@@ -125,8 +129,8 @@ object PhoneSetupFlow {
     private val USB_FAILURES = setOf(BuiltinShellFailure.PairingWindowClosed, BuiltinShellFailure.ConnectFailed, BuiltinShellFailure.UsbHelperStopped)
 
     fun view(i: SetupInputs): SetupView {
-        if (unavailable(i)) return SetupView(SetupPhase.Unavailable, SetupStep.entries.associateWith { StepMark.Todo }, null, restart = i.restart)
-        return steps(i).let { it.copy(usbFallback = usbFallback(it, i), restart = i.restart) }
+        if (unavailable(i)) return SetupView(SetupPhase.Unavailable, SetupStep.entries.associateWith { StepMark.Todo }, null, restart = i.restart, unplugReaps = i.unplugReaps)
+        return steps(i).let { it.copy(usbFallback = usbFallback(it, i), restart = i.restart, unplugReaps = i.unplugReaps) }
     }
 
     /**

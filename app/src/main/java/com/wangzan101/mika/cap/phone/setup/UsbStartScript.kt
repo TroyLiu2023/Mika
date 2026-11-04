@@ -17,8 +17,9 @@ import java.io.File
  * 交接也走同一个 [HelperHub.offer](同样核对 shell 身份、口令、签名)。
  * 助手不在时写带一次性口令的脚本;助手连着时换成不带口令的说明,磁盘上不留能用的口令。
  * 外部文件目录 App 自己写不用权限,shell 也读得到;别的 App 读不到。
+ * [reapedOnUnplug] 是「这台手机拔线会回收助手」的既知事实(见 [HelperHandoff.usbScript]),影响脚本里的那行提示。
  */
-class UsbStartScript(context: Context, private val hub: HelperHub) {
+class UsbStartScript(context: Context, private val hub: HelperHub, private val reapedOnUnplug: () -> Boolean = { false }) {
     private val app = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var started = false
@@ -49,6 +50,7 @@ class UsbStartScript(context: Context, private val hub: HelperHub) {
         val text = runCatching {
             HelperHandoff.usbFile(
                 connected, app.applicationInfo.sourceDir, app.packageName, Process.myUid(), { ownCertPin(app) }, hub::usbNonce, f.absolutePath,
+                reapedOnUnplug(),
             )
         }.getOrElse {
             Log.w(TAG, "cannot build ${f.name}", it)

@@ -117,9 +117,11 @@ object PhoneSetupCopy {
     val CONNECT_PORT_HINT: String get() = tr(R.string.phone_connect_port_hint)
     val CONNECT_PORT_SUBMIT: String get() = tr(R.string.phone_connect_port_submit)
     val SUCCESS_LINE: String get() = tr(R.string.phone_success)
-    /** 成功页底部的提醒:手机重启后怎么让助手回来,看它上次是怎么起的。 */
-    fun successNote(restart: HelperRestart): String =
-        if (restart == HelperRestart.UsbCommand) tr(R.string.phone_success_note_usb) else tr(R.string.phone_success_note)
+    /** 成功页底部的提醒:手机重启后怎么让助手回来,看它上次是怎么起的;这台手机拔线会回收助手时([unplugReaps])照实说。 */
+    fun successNote(restart: HelperRestart, unplugReaps: Boolean = false): String =
+        if (restart == HelperRestart.UsbCommand) {
+            tr(if (unplugReaps) R.string.phone_success_note_usb_reaped else R.string.phone_success_note_usb)
+        } else tr(R.string.phone_success_note)
     /** 首次上手最后一步成功后的底部按钮;从设置进来的是 [SUCCESS_DONE]。 */
     val START_USING: String get() = tr(R.string.phone_start_using)
     val SUCCESS_DONE: String get() = tr(R.string.done)
@@ -131,10 +133,11 @@ object PhoneSetupCopy {
     val USB_COPY: String get() = tr(R.string.phone_usb_copy)
     val USB_COPIED: String get() = tr(R.string.phone_usb_copied)
 
-    /** 「改用电脑启动」卡片的标题和说明:助手本来就是用这条命令起的,就说再运行一次,不说「打不开无线调试」。 */
-    fun usbCard(restart: HelperRestart): Pair<String, String> =
-        if (restart == HelperRestart.UsbCommand) tr(R.string.phone_usb_again_title) to tr(R.string.phone_usb_again_body)
-        else USB_TITLE to USB_BODY
+    /** 「改用电脑启动」卡片的标题和说明:助手本来就是用这条命令起的,就说再运行一次,不说「打不开无线调试」;这台手机拔线会回收助手时([unplugReaps])照实说。 */
+    fun usbCard(restart: HelperRestart, unplugReaps: Boolean = false): Pair<String, String> =
+        if (restart == HelperRestart.UsbCommand) {
+            tr(R.string.phone_usb_again_title) to tr(if (unplugReaps) R.string.phone_usb_again_body_reaped else R.string.phone_usb_again_body)
+        } else USB_TITLE to USB_BODY
 
     data class FailureCopy(val title: String, val body: String)
 
@@ -199,9 +202,11 @@ object PhoneSetupCopy {
     val ROW_TITLE: String get() = tr(R.string.settings_phone_ops)
     val ROW_SUBTITLE: String get() = tr(R.string.phone_row_sub)
 
-    /** 设置 › 手机操作页底部的完整说明:只用 USB 启动命令起过助手时,说重启后要再运行命令,不说打开无线调试。 */
-    fun usageNote(restart: HelperRestart): String =
-        if (restart == HelperRestart.UsbCommand) tr(R.string.phone_usage_note_usb) else tr(R.string.phone_usage_note)
+    /** 设置 › 手机操作页底部的完整说明:只用 USB 启动命令起过助手时,说重启后要再运行命令,不说打开无线调试;这台手机拔线会回收助手时([unplugReaps])照实说。 */
+    fun usageNote(restart: HelperRestart, unplugReaps: Boolean = false): String =
+        if (restart == HelperRestart.UsbCommand) {
+            tr(if (unplugReaps) R.string.phone_usage_note_usb_reaped else R.string.phone_usage_note_usb)
+        } else tr(R.string.phone_usage_note)
 
     fun statusValue(s: BuiltinShellStatus): Pair<String, ValueTone> = when (s) {
         BuiltinShellStatus.Running -> tr(R.string.sandbox_ready) to ValueTone.Ok

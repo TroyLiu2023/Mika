@@ -101,6 +101,9 @@ interface BuiltinShellControl {
         else -> HelperRestart.None
     }
 
+    /** 这台手机拔线会回收 USB 启动的助手(观察过一次后持久化):各处提示要不要照实说拔线会停。 */
+    val unplugReapsHelper: Boolean get() = false
+
     /** 开始找配对端口(用户正在去打开配对窗口)。重复调用无害:还在找就从这时起重新计时。 */
     fun startDiscovery()
     fun stopDiscovery()

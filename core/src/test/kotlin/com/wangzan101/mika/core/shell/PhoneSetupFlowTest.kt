@@ -387,6 +387,15 @@ class PhoneSetupFlowTest {
         assertFalse(v.usbFallback)
     }
 
+    /** 「这台手机拔线回收助手」原样传到界面:成功页、卡片据此换如实说法;设不成时也带着。 */
+    @Test
+    fun unplugReapsIsPassedThroughToTheView() {
+        assertEquals(true, PhoneSetupFlow.view(usbOnly.copy(status = BuiltinShellStatus.Running, unplugReaps = true)).unplugReaps)
+        assertEquals(false, PhoneSetupFlow.view(usbOnly.copy(status = BuiltinShellStatus.Running)).unplugReaps)
+        val noWay = switchesOn.copy(developerSettingsMissing = true, wirelessMissing = true)
+        assertEquals(true, PhoneSetupFlow.view(noWay.copy(unplugReaps = true)).unplugReaps)
+    }
+
     /** 正在交接(助手换手、App 刚起来等它来):显示正在连接,不因为无线调试关着退回那一步。 */
     @Test
     fun handoverDoesNotFlipBackToWirelessStep() {

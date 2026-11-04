@@ -304,7 +304,7 @@ fun PhoneSetupContent(
                                 val working = step == SetupStep.Connect && view.phase == SetupPhase.Working
                                 if (working) WorkingLine(scanning)
                                 if (usbCommand != null && (step == view.current || working)) {
-                                    if (view.usbFallback) UsbStartCard(view.restart, usbCommand, onCopyUsbCommand)
+                                    if (view.usbFallback) UsbStartCard(view.restart, view.unplugReaps, usbCommand, onCopyUsbCommand)
                                     else if (step == SetupStep.WirelessDebugging) LinkText(PhoneSetupCopy.USB_ASK, "setup-usb-ask", onAskUsb)
                                 }
                             }
@@ -317,7 +317,7 @@ fun PhoneSetupContent(
             Column(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)) {
                 if (view.phase == SetupPhase.Success) {
                     Text(
-                        PhoneSetupCopy.successNote(view.restart), Modifier.fillMaxWidth().padding(bottom = 10.dp),
+                        PhoneSetupCopy.successNote(view.restart, view.unplugReaps), Modifier.fillMaxWidth().padding(bottom = 10.dp),
                         style = MikaType.Caption, color = c.ink3, textAlign = TextAlign.Center,
                     )
                 }
@@ -350,9 +350,9 @@ fun PhoneSetupContent(
  * 助手本来就是这样起的([HelperRestart.UsbCommand])时,标题说「再运行一次」。
  */
 @Composable
-private fun UsbStartCard(restart: HelperRestart, command: String, onCopy: () -> Unit) {
+private fun UsbStartCard(restart: HelperRestart, unplugReaps: Boolean, command: String, onCopy: () -> Unit) {
     val c = MikaTheme.colors
-    val (title, body) = PhoneSetupCopy.usbCard(restart)
+    val (title, body) = PhoneSetupCopy.usbCard(restart, unplugReaps)
     Column(Modifier.padding(top = 10.dp).fillMaxWidth().background(c.accentSoft, RoundedCornerShape(12.dp)).padding(12.dp).testTag("setup-usb")) {
         Text(title, fontSize = 14.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold, color = c.ink)
         Text(body, Modifier.padding(top = 2.dp), fontSize = 13.sp, lineHeight = 18.sp, color = c.ink2)

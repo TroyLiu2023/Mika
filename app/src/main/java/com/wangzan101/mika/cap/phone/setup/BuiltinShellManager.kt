@@ -1,7 +1,10 @@
 package com.wangzan101.mika.cap.phone.setup
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.net.ConnectivityManager
@@ -94,8 +97,8 @@ class BuiltinShellManager(context: Context, private val hub: HelperHub, private 
         }
     }
 
-    /** 「用电脑启动」的脚本:跟着助手在不在重写。 */
-    val usbScript = UsbStartScript(app, hub)
+    /** 「用电脑启动」的脚本:跟着助手在不在重写;拔线会回收助手的手机上,提示也照实说。 */
+    val usbScript = UsbStartScript(app, hub, reapedOnUnplug = { platform.unplugReapsHelper() })
 
     /** 有人要用助手却没有:看门狗起一个(配对过才行),脚本也备好给电脑用。 */
     fun need() {
@@ -122,6 +125,18 @@ class BuiltinShellManager(context: Context, private val hub: HelperHub, private 
                 override fun onChange(selfChange: Boolean) = e.wirelessDebuggingChanged()
             },
         )
+        // USB 拔线必然伴随断电:记下时间,之后未配对的助手没了就认定这台手机拔线回收助手(引导文案照实说)
+        runCatching {
+            val receiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) = e.powerDisconnected()
+            }
+            val filter = IntentFilter(Intent.ACTION_POWER_DISCONNECTED)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                app.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                app.registerReceiver(receiver, filter)
+            }
+        }
         // 卡在「没有 Wi-Fi」或无线调试关着时,一连上任意 Wi-Fi(不用能上网)就再试
         runCatching {
             app.getSystemService(ConnectivityManager::class.java).registerNetworkCallback(
@@ -161,6 +176,13 @@ class BuiltinShellManager(context: Context, private val hub: HelperHub, private 
 
         override fun setUsbStarted(on: Boolean) {
             prefs.edit().putBoolean("usbStarted", on).apply()
+        }
+
+        // 描述手机系统的行为,解除配对不清除
+        override fun unplugReapsHelper() = prefs.getBoolean("unplugReaps", false)
+
+        override fun setUnplugReapsHelper(on: Boolean) {
+            prefs.edit().putBoolean("unplugReaps", on).apply()
         }
 
         // 这一项没写过时读出 null:看不清就不拦着

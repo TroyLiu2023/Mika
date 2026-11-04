@@ -38,6 +38,9 @@ interface BuiltinShellPlatform {
     /** 没配对时收下过助手(是电脑经 USB 起的):它停了要告诉用户怎么再起,而不是当作从没设置过。持久化。 */
     fun usbStarted(): Boolean
     fun setUsbStarted(on: Boolean)
+    /** 这台手机拔线会回收 USB 启动的助手(观察过一次后持久化;描述系统行为,解除配对不清除)。 */
+    fun unplugReapsHelper(): Boolean
+    fun setUnplugReapsHelper(on: Boolean)
 }
 
 /** 看门狗重起助手的间隔:第 n 次失败后等 base·2^(n-1),封顶 [maxMs];连续失败 [maxAttempts] 次后停下等人或等开关变化。 */
@@ -84,6 +87,7 @@ class BuiltinShellEngine(
     private val discoveryTimeoutMs: Long = 10 * 60_000L,
     private val pairingPortTimeoutMs: Long = 5_000,
     private val autoOn: WirelessDebuggingAutoOn? = null,
+    private val unplugReap: UsbUnplugReap = UsbUnplugReap(),
 ) : BuiltinShellControl {
     private val _status = MutableStateFlow(initialStatus())
     override val status: StateFlow<BuiltinShellStatus> = _status.asStateFlow()
@@ -108,6 +112,8 @@ class BuiltinShellEngine(
         else -> HelperRestart.None
     }
 
+    override val unplugReapsHelper: Boolean get() = platform.unplugReapsHelper()
+
     private fun initialStatus(): BuiltinShellStatus = when {
         helper.value != null -> BuiltinShellStatus.Running
         // 电脑起过的助手可能还活着,等它来交接
@@ -125,26 +131,36 @@ class BuiltinShellEngine(
         if (started) return
         started = true
         var first = true
+        var hadHelper = helper.value != null
         scope.launch {
             helper.collect { h ->
                 if (h != null) {
+                    hadHelper = true
                     synchronized(this@BuiltinShellEngine) { failures = 0; retryJob?.cancel() }
                     autoOn?.reset()
                     // 没配对就来了:是电脑经 USB 起的。记下来,它停了才知道该怎么提示
                     if (!platform.paired()) platform.setUsbStarted(true)
                     _status.value = BuiltinShellStatus.Running
-                } else if (!platform.paired()) {
-                    // App 刚起来时还活着的助手会自己来交接;用着用着断了也可能是正在换一个新的来交接:
-                    // 都先等一会儿再说它停了,免得界面一闪「已停止」
-                    if (platform.usbStarted()) {
-                        _status.value = BuiltinShellStatus.Connecting
-                        schedule(graceMs)
-                    } else {
-                        _status.value = unpairedStatus()
-                    }
                 } else {
-                    if (_status.value == BuiltinShellStatus.Running) _status.value = BuiltinShellStatus.Connecting
-                    schedule(if (first) graceMs else backoff.baseMs)
+                    // 之前在跑的未配对助手断了,又紧跟着一次电源断开:这台手机拔线回收助手,记下它
+                    // (初始就是 null 的不算,那只是助手还没来交接)
+                    if (hadHelper && !platform.paired() && unplugReap.onHelperLost(platform.unplugReapsHelper())) {
+                        platform.setUnplugReapsHelper(true)
+                    }
+                    hadHelper = false
+                    if (!platform.paired()) {
+                        // App 刚起来时还活着的助手会自己来交接;用着用着断了也可能是正在换一个新的来交接:
+                        // 都先等一会儿再说它停了,免得界面一闪「已停止」
+                        if (platform.usbStarted()) {
+                            _status.value = BuiltinShellStatus.Connecting
+                            schedule(graceMs)
+                        } else {
+                            _status.value = unpairedStatus()
+                        }
+                    } else {
+                        if (_status.value == BuiltinShellStatus.Running) _status.value = BuiltinShellStatus.Connecting
+                        schedule(if (first) graceMs else backoff.baseMs)
+                    }
                 }
                 first = false
             }
@@ -157,6 +173,11 @@ class BuiltinShellEngine(
         synchronized(this) { if (retryJob?.isActive == true) return }
         if (launchLock.isLocked) return
         schedule(0)
+    }
+
+    /** 电源断了(USB 拔线必然伴随):记下时间,之后未配对的助手再没了就认定这台手机拔线回收助手。 */
+    fun powerDisconnected() {
+        unplugReap.onPowerDisconnected()
     }
 
     /**

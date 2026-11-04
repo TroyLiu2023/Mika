@@ -70,11 +70,24 @@ object HelperHandoff {
      * adb shell 的会话一结束(命令跑完、拔线),adbd 就把它那一组进程杀掉:助手用 nohup 忽略挂断信号,再用 setsid 另起会话,放到后台的子 shell 里起
      * (子 shell 退出后它归 init 管),标准输出和错误丢掉,不再连着 adb 的流;脚本再等一会儿让 setsid 生效,
      * 看助手进程还在就说一句「正在启动」,不在(多半是口令过期或 Mika 不认)就请用户打开 Mika 再跑一次。
+     * 多数手机这样起助手后拔线也能继续用;但有的系统(如部分 HarmonyOS 底座的华为)拔线时会把 adb 派生的进程连同
+     * adbd 的进程组一起回收,setsid 也躲不掉——那种手机上助手活不过拔线,靠 [reapedOnUnplug](App 观察到过一次后持久化)把话说准:
+     * 拔线会停、重新插线再跑一次本命令即恢复。
      * 只用安卓原版 sh 和 toybox 里有的命令。不是 shell 身份(没经 adb 跑)时不起:Mika 只收 shell 交来的助手。
      */
-    fun usbScript(apkPath: String, packageName: String, appUid: Int, certPin: String, nonce: String, scriptPath: String): String {
+    fun usbScript(
+        apkPath: String, packageName: String, appUid: Int, certPin: String, nonce: String, scriptPath: String,
+        reapedOnUnplug: Boolean,
+    ): String {
         val name = quote(processName(packageName))
         val again = usbCommand(scriptPath)
+        val unplugNote = if (reapedOnUnplug) {
+            "On this phone the helper stops when you unplug the cable. To use phone control again, plug in and run this command again. " +
+                "After a phone restart, run this command again."
+        } else {
+            "On most phones it keeps running after you unplug the cable. After a phone restart, or if phone control stopped after unplugging, " +
+                "plug in and run this command again."
+        }
         return """
             |#!/system/bin/sh
             |# Written by Mika. Starts Mika's phone helper from a computer: $again
@@ -91,7 +104,7 @@ object HelperHandoff {
             |sleep 2
             |if pidof $name >/dev/null 2>&1; then
             |  echo "Mika helper starting... Open Mika to confirm phone control is ready."
-            |  echo "It keeps running after you unplug the cable. After a phone restart, run this command again."
+            |  echo "$unplugNote"
             |else
             |  echo "Mika helper did not start. Open Mika once, then run this command again."
             |  exit 1
@@ -107,13 +120,14 @@ object HelperHandoff {
 
     /**
      * 此刻该写的脚本:助手连着([connected])就写不带口令的 [usbStub],也不去要口令;否则写带新口令的 [usbScript]。
-     * [certPin]、[nonce] 只在要写带口令的脚本时才取。
+     * [certPin]、[nonce] 只在要写带口令的脚本时才取;[reapedOnUnplug] 是「本机拔线会回收助手」的既知事实(见 [usbScript])。
      */
     fun usbFile(
         connected: Boolean, apkPath: String, packageName: String, appUid: Int, certPin: () -> String, nonce: () -> String, scriptPath: String,
+        reapedOnUnplug: Boolean,
     ): String =
         if (connected) usbStub(packageName, scriptPath)
-        else usbScript(apkPath, packageName, appUid, certPin(), nonce(), scriptPath)
+        else usbScript(apkPath, packageName, appUid, certPin(), nonce(), scriptPath, reapedOnUnplug)
 
     /** 助手已连着时换上的脚本:不带口令,只说一句。进程不在了(比如手机重启过、Mika 还没打开)就请用户先打开 Mika。 */
     fun usbStub(packageName: String, scriptPath: String): String {

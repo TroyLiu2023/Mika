@@ -50,7 +50,7 @@ class UsbHelperHangupTest {
         val nonce = "once-only-test-nonce"
         val apk = temporary.newFile("base app's.apk")
         val script = File(dir, "usb-start.sh").apply {
-            writeText(HelperHandoff.usbScript(apk.path, "com.wangzan101.mika", 10234, "pin", nonce, path))
+            writeText(HelperHandoff.usbScript(apk.path, "com.wangzan101.mika", 10234, "pin", nonce, path, false))
         }
         val pidFile = File(dir, "pid")
         fun helperPid(): Long? = runCatching { pidFile.readText().toLong() }.getOrNull()

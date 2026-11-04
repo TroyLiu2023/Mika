@@ -133,6 +133,9 @@
     <string name="phone_usb_copied">命令已复制</string>
     <string name="phone_usb_again_title">再运行一次启动命令</string>
     <string name="phone_usb_again_body">用数据线连上电脑，在电脑上运行这条命令（在手机上能跑 adb 命令的其他方式也行）。每次手机重启后都要再运行一次。</string>
+    <string name="phone_usb_again_body_reaped">用数据线连上电脑,在电脑上运行这条命令(在手机上能跑 adb 命令的其他方式也行)。这台手机拔掉数据线或重启后,助手都会停:要再用手机操作,就再运行一次。</string>
     <string name="phone_success_note_usb">请保持 USB 调试开启;助手是用 USB 命令启动的,手机重启后不会自己回来:打开 Mika,再运行一次命令</string>
+    <string name="phone_success_note_usb_reaped">请保持 USB 调试开启;助手是用 USB 命令启动的,这台手机拔掉数据线或重启后都会停:重新插上数据线,再运行一次命令</string>
     <string name="phone_usage_note_usb">Mika 的内置助手是用 USB 启动命令启动的,拔掉数据线也会继续运行。「USB 调试」(在开发者选项里)要一直开着,关掉后手机操作会停下。手机重启后助手不会自己回来:打开 Mika,再运行一次启动命令(在「设置手机操作」里可以复制)。如果这台手机有能用的「无线调试」,配对一次之后,重启后 Mika 就能自己重新连上。</string>
+    <string name="phone_usage_note_usb_reaped">Mika 的内置助手是用 USB 启动命令启动的,这台手机拔掉数据线就会把它停掉:想再用手机操作,插上数据线,再运行一次启动命令(在「设置手机操作」里可以复制)。「USB 调试」(在开发者选项里)要一直开着。手机重启后助手同样不会自己回来。如果这台手机有能用的「无线调试」,配对一次之后,重启后 Mika 就能自己重新连上。</string>
 </resources>

@@ -53,6 +53,9 @@ class BuiltinShellEngineTest {
         var usb = false
         override fun usbStarted() = usb
         override fun setUsbStarted(on: Boolean) { usb = on }
+        var unplugReaps = false
+        override fun unplugReapsHelper() = unplugReaps
+        override fun setUnplugReapsHelper(on: Boolean) { unplugReaps = on }
     }
 
     private val platform = FakePlatform()
@@ -440,6 +443,31 @@ class BuiltinShellEngineTest {
         // 再运行一次命令,不是去配对无线调试
         assertEquals(BuiltinShellFix.RunUsbCommand, (e.status.value as BuiltinShellStatus.Failed).fix)
         assertEquals(HelperRestart.UsbCommand, e.restart)
+    }
+
+    /** 电脑起的助手紧跟着一次电源断开(USB 拔线)没了:认定这台手机拔线回收助手,记到平台上。 */
+    @Test
+    fun usbHelperLostAfterAPowerDisconnectMarksTheDevice() = runTest {
+        val e = engine()
+        e.start()
+        helper.value = "usb"
+        runCurrent()
+        e.powerDisconnected()
+        helper.value = null
+        runCurrent()
+        assertTrue(platform.unplugReaps)
+    }
+
+    /** 没有电源断开的助手死亡(比如被单独杀掉):不认定,免得误改其它设备上的提示。 */
+    @Test
+    fun usbHelperLostWithoutAPowerDisconnectDoesNotMarkTheDevice() = runTest {
+        val e = engine()
+        e.start()
+        helper.value = "usb"
+        runCurrent()
+        helper.value = null
+        advanceUntilIdle()
+        assertEquals(false, platform.unplugReaps)
     }
 
     /** 用着用着断了(比如助手正在换一个新的来交接):先显示正在连接,等一会儿还没回来才说停了。 */

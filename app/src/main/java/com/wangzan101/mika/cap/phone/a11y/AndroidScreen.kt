@@ -229,20 +229,36 @@ class AndroidScreen(
         TargetApp(pkg, task, userOf(task))
     }.distinctUntilChanged { a, b -> a.packageName == b.packageName && a.userId == b.userId }
 
-    override suspend fun screenshotPng(): ByteArray? = withContext(Dispatchers.IO) { display.current?.latestFramePng() }
+    override suspend fun screenshotPng(): ByteArray? = withContext(Dispatchers.IO) {
+        if (!frameServable()) return@withContext null
+        display.current?.latestFramePng()
+    }
+
+    /** 最近一次启动开始的时刻;到这次启动之后的帧为止,保护窗内不把旧帧当画面(见 [FrameFreshness])。 */
+    @Volatile private var frameGuardSince: Long? = null
+
+    /** 此刻能不能把 Agent 屏的最新帧交给模型:刚启动过、保护窗内还没有这次启动之后的帧时不给,宁缺毋错;新帧到了或保护窗过了即恢复。 */
+    private fun frameServable(): Boolean = when (FrameFreshness.serve({ SystemClock.uptimeMillis() }, { display.current?.lastFrameAt() }, frameGuardSince)) {
+        FrameFreshness.Serve.Guarded -> false
+        else -> {
+            frameGuardSince = null
+            true
+        }
+    }
 
     /**
      * 认屏上文字。自绘界面几乎没有无障碍事件,事件安静了画面可能还在过渡:先等画面停稳再认;认的过程中换了整页就按新的一页再认
      * (规则见 [StillFrameRead])。局部在动(动图头像、光标)不影响字的位置,照用,不再整个丢掉。
      */
     override suspend fun readVisibleText(): List<VisibleTextLine>? = withContext(Dispatchers.IO) {
-        if (!hasDisplay || frameBlack() == true) return@withContext null
+        if (!hasDisplay || !frameServable() || frameBlack() == true) return@withContext null
         StillFrameRead.read(SystemClock::uptimeMillis, { delay(it) }, ::frameSignature) {
             display.current?.latestFrameBitmap()?.let { PhoneOcr.read(it) }
         }
     }
 
     override suspend fun frameGrid(): FrameGrid? = withContext(Dispatchers.IO) {
+        if (!frameServable()) return@withContext null
         val bmp = display.current?.frames?.value ?: return@withContext null
         runCatching { FrameGrid.sample(bmp.width, bmp.height, bmp::getPixel) }.getOrNull()
     }
@@ -715,6 +731,8 @@ class AndroidScreen(
         // 打开前最上面的窗口:之后冒出来的才可能是这次打开引起的选择框(上次没选、又打开一次时还是同一个选择框)
         val before = if (hasDisplay) topWindowPackage().takeIf { it != chooserPackage } else null
         val id = display.get().displayId
+        // 画面新鲜度从这次启动开始算:之后的截图、认字只认这之后到的帧(见 FrameFreshness)
+        val startedAt = SystemClock.uptimeMillis()
         beforeOpen(packageName, user)
         fun launch() = when {
             user != null -> shell.startAppInUser(id, packageName, user, cold)
@@ -736,7 +754,7 @@ class AndroidScreen(
             ShellService.START_USER_NOT_ALLOWED -> return@withContext ActionResult.Failed(COPY_NOT_FOUND)
             else -> return@withContext ActionResult.Failed("launch_failed")
         }
-        awaitOpened(packageName, before, hint = if (code == ShellService.START_OK_COLD_IGNORED) HINT_COLD_IGNORED else null, user = user)
+        awaitOpened(packageName, before, hint = if (code == ShellService.START_OK_COLD_IGNORED) HINT_COLD_IGNORED else null, user = user, launchedAt = startedAt)
     }
 
     /**
@@ -751,6 +769,7 @@ class AndroidScreen(
         }
         val before = if (hasDisplay) topWindowPackage().takeIf { it != chooserPackage } else null
         val id = display.get().displayId
+        val startedAt = SystemClock.uptimeMillis()
         beforeOpen(packageName, null)
         val code = runCatching { shell.startShare(id, packageName, text) }.getOrDefault(ShellService.START_ERROR)
         if (code != ShellService.START_OK) notOpened(packageName, null)
@@ -761,7 +780,7 @@ class AndroidScreen(
             ShellService.START_UNRESOLVED -> return@withContext ActionResult.Failed("cannot_share")
             else -> return@withContext ActionResult.Failed("launch_failed")
         }
-        awaitOpened(packageName, before, hint = null, sharing = true)
+        awaitOpened(packageName, before, hint = null, sharing = true, launchedAt = startedAt)
     }
 
     /**
@@ -777,14 +796,16 @@ class AndroidScreen(
             ShellService.START_INVALID_LINK -> return@withContext ActionResult.Failed("own_page_not_allowed")
             else -> return@withContext ActionResult.Failed("launch_failed")
         }
-        awaitOpened(a11y.packageName, before, hint = null)
+        awaitOpened(a11y.packageName, before, hint = null, launchedAt = SystemClock.uptimeMillis())
     }
 
     /**
      * 启动发出之后:等 [packageName] 到 Mika 屏的最上面,或系统先问打开哪一个([before] 是启动前最上面的窗口所在的包)。
      * [sharing]:这次是分享(App 有几个收分享的页面时系统问用哪一个,选项里不一定有 App 名):最上面换成了系统包的窗口也算在问。
      */
-    private suspend fun awaitOpened(packageName: String, before: String?, hint: String?, sharing: Boolean = false, user: Int? = null): ActionResult {
+    private suspend fun awaitOpened(
+        packageName: String, before: String?, hint: String?, sharing: Boolean = false, user: Int? = null, launchedAt: Long = 0L,
+    ): ActionResult {
         targetPackage = packageName
         chooserPackage = null
         requestedUser = user
@@ -825,6 +846,11 @@ class AndroidScreen(
             // 要的是另一份,最上面却是这个 App 的别的那份
             val copy = if (user != null && now == packageName) " (a different copy of the app)" else ""
             return ActionResult.Failed("app_not_in_front", hint = now?.let { "In the foreground now: $it$copy." } ?: "Nothing came to the foreground.")
+        }
+        // 树稳定只是窗口到了顶,画面可能还没合成:等这次启动之后的第一帧,等不到就记下保护窗,
+        // 不把上一屏留在缓冲里的残影当这次打开的画面交给模型(issue #253)
+        if (launchedAt > 0) {
+            frameGuardSince = if (FrameFreshness.awaitNewFrame({ SystemClock.uptimeMillis() }, ::delay, { display.current?.lastFrameAt() }, launchedAt)) null else launchedAt
         }
         // 打开了,但另一个包的窗口盖在上面(权限弹窗、账号选择器):照实说是谁,仍算打开了
         val cover = ScreenReader.topPackage(windows())?.takeIf { it != packageName }

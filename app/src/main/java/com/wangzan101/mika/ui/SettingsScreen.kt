@@ -126,6 +126,7 @@ fun SettingsScreen(
     var selfOperate by remember { mutableStateOf(flags.selfOperate()) }
     var capsuleMode by remember { mutableStateOf(flags.capsuleMode()) }
     var capsuleIdleOpacity by remember { mutableStateOf(flags.capsuleIdleOpacity()) }
+    var capsuleCardScale by remember { mutableStateOf(flags.capsuleCardScale()) }
     // 换语言时界面会重建,这里每次进来读一次即可
     val language = remember { AppLanguage.current(context) }
     val runtimeLimit by (context.applicationContext as com.wangzan101.mika.MikaApp).taskState.parallelLimit.collectAsState()
@@ -235,6 +236,8 @@ fun SettingsScreen(
             capsuleMode, onMode = { flags.setCapsuleMode(it); capsuleMode = it }, onBack = toHome,
             idleOpacity = capsuleIdleOpacity,
             onIdleOpacity = { flags.setCapsuleIdleOpacity(it); capsuleIdleOpacity = it },
+            cardScale = capsuleCardScale,
+            onCardScale = { flags.setCapsuleCardScale(it); capsuleCardScale = it },
         )
         SettingsPage.Sandbox -> SandboxScreen(onBack = toAdvanced)
         SettingsPage.Recovery -> RecoveryScreen(onBack = toAdvanced, onOpenSelfCheck = { page = SettingsPage.SelfCheck })

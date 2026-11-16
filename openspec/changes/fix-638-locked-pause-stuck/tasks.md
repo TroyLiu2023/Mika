@@ -18,9 +18,9 @@
 
 ## 3. 验证与交付
 
-- [ ] 3.1 本地全量单测：`./gradlew :core:test :core:cliTest :app:testDebugUnitTest` 全绿
-- [ ] 3.2 构建 debug 包装真机：回归验证锁屏暂停路径仍正常（任务中熄屏 → 出现「等你解锁手机」横幅），
+- [x] 3.1 本地全量单测：`./gradlew :core:test :core:cliTest :app:testDebugUnitTest` 全绿
+- [x] 3.2 构建 debug 包装真机：回归验证锁屏暂停路径仍正常（任务中熄屏 → 出现「等你解锁手机」横幅），
       截图取证入 evidence/
-- [ ] 3.3 取证落盘 evidence/（时间线 + 截图），说明解锁自动恢复由单测覆盖
+- [x] 3.3 取证落盘 evidence/（时间线 + 截图），说明解锁自动恢复由单测覆盖
       （本机 PIN 锁 adb 解不开，无法端到端解锁；如实写进 PR）
 - [ ] 3.4 提交、推 fork、建 PR 关联 #638，正文含根因、修法、测试结果与限制说明

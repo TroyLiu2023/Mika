@@ -25,4 +25,4 @@
 
 - [x] 4.1 本地全量测试：`./gradlew :core:test :core:cliTest :app:testDebugUnitTest`
 - [x] 4.2 真机验证：全局快+某 App 覆盖像人时该 App 步骤间隔显著/其余快；改档下任务不受屏上限误伤；取证进 evidence/
-- [ ] 4.3 提交（中文提交信息）、推 fork、建 PR 关联 #574，等 CI 通过
+- [x] 4.3 提交（中文提交信息）、推 fork、建 PR 关联 #574，等 CI 通过

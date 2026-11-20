@@ -1,5 +1,21 @@
 ## ADDED Requirements
 
+### Requirement: 任务回答渲染产出引用卡片
+
+回答含 `/workspace` 引用的任务最终回答（`Done`）与停止后的交代（`Cancelled` 的 summary）
+SHALL 在回答文字下方渲染引用卡片（照片排格子、文件画卡片），与插话回复
+（`FinishedReply`）同一渲染入口；点开 SHALL 走文件闸门读对话工作区，读不到提示文件不存在。
+
+#### Scenario: 任务回答带编码引用
+- **WHEN** 任务最终回答含 `![图](/workspace/%E6%8A%A5%E5%91%8A.png)` 与
+  `[my report.csv](/workspace/my%20report.csv)`
+- **THEN** 回答下方渲染蓝色图片缩略图与名为 `my report.csv` 的文件卡片；点文件卡经文件
+  闸门打开工作区里的 `my report.csv`
+
+#### Scenario: 停止后的交代带引用
+- **WHEN** 任务被停止后补写的交代（summary）含 `/workspace` Markdown 引用
+- **THEN** 交代下方同样渲染引用卡片
+
 ### Requirement: 产出引用按百分号转义解码
 
 回答里抽出的 `/workspace` 链接/图片目标，渲染前 SHALL 按 URI 百分号转义宽容解码：合法

@@ -35,6 +35,14 @@
      `100%.csv`）仍可用 `[](<...>)` 裸引用，不会被整个丢弃。
 3. **解码先于 `SandboxPaths.normalize`**：`%2F` 解出 `/` 会按路径分隔符参与规范化，仍被
    圈在 `/workspace` 内，无越界新增面。
+4. **主回答接线照 `FinishedReply` 的样子补在 `StatusCard`**：`Done` 的回答与
+   `Cancelled` 的交代（summary）都是「回答样文本」，在 `MarkdownText` 下、操作区
+   （`ReplyActions`）上画 `OutputRefs`，点开照抄 `FinishedReply` 的
+   `AttachFiles.openSent` + 失败 toast。`conversationId` 作为 `StatusCard` 新参从
+   `exchange()` 传入（该值在那里已存在）。`Failed.reason` 是失败原因不是回答，不接；
+   流式草稿（`DraftText`）不接（`FinishedReply` 也只在说完后画）。
+   测试口径照维护者本功能的先例（7edc0747）：解析层 JVM 单测 + 真机走查，渲染层不加
+   Compose 测试。
 
 ## Risks / Trade-offs
 

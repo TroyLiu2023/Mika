@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import com.wangzan101.mika.R
 import com.wangzan101.mika.cap.phone.PhoneServices
 import com.wangzan101.mika.cap.sandbox.AndroidSandbox
+import com.wangzan101.mika.cap.sandbox.AttachmentLimits
 import com.wangzan101.mika.cap.sandbox.SandboxDirs
 import com.wangzan101.mika.cap.sandbox.SandboxState
 import com.wangzan101.mika.chat.WorkspaceResolver
@@ -133,6 +134,10 @@ internal fun DeviceFileBrowser(vm: ChatViewModel, conversationId: String, onClos
             directories,
             importStore,
             resolveWorkspace = WorkspaceResolver.resolver(context),
+            limits = {
+                val flags = com.wangzan101.mika.settings.FeatureFlags.get(context)
+                AttachmentLimits(flags.attachmentMaxBytes(), flags.workspaceMaxBytes())
+            },
         )
     }
     val records by remember(importStore) {

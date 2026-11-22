@@ -312,4 +312,18 @@
         <item quantity="many">%1$d minutos</item>
         <item quantity="other">%1$d minutos</item>
     </plurals>
+    <string name="settings_attachment_file_limit">Limite por arquivo enviado</string>
+    <string name="settings_attachment_file_limit_sub">Tamanho máximo de um arquivo de anexos do chat, imagens do WeChat ou arquivos de tarefas do computador. Padrão: 200 MB.</string>
+    <plurals name="settings_attachment_file_limit_mb_n">
+        <item quantity="one">%1$d MB</item>
+        <item quantity="many">%1$d MB</item>
+        <item quantity="other">%1$d MB</item>
+    </plurals>
+    <string name="settings_workspace_size_limit">Limite por espaço de trabalho</string>
+    <string name="settings_workspace_size_limit_sub">Armazenamento máximo que o sandbox de uma conversa pode usar. Padrão: 4 GB.</string>
+    <plurals name="settings_workspace_size_limit_gb_n">
+        <item quantity="one">%1$d GB</item>
+        <item quantity="many">%1$d GB</item>
+        <item quantity="other">%1$d GB</item>
+    </plurals>
 </resources>

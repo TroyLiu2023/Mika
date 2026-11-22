@@ -298,4 +298,14 @@
     <plurals name="settings_sandbox_budget_minutes_n">
         <item quantity="other">%1$d 分钟</item>
     </plurals>
+    <string name="settings_attachment_file_limit">单个上传文件上限</string>
+    <string name="settings_attachment_file_limit_sub">聊天附件、微信图片、电脑发任务带的单个文件最大体积;默认 200 MB。</string>
+    <plurals name="settings_attachment_file_limit_mb_n">
+        <item quantity="other">%1$d MB</item>
+    </plurals>
+    <string name="settings_workspace_size_limit">单个工作区上限</string>
+    <string name="settings_workspace_size_limit_sub">一个对话的沙箱工作区最多占多少空间;默认 4 GB。</string>
+    <plurals name="settings_workspace_size_limit_gb_n">
+        <item quantity="other">%1$d GB</item>
+    </plurals>
 </resources>

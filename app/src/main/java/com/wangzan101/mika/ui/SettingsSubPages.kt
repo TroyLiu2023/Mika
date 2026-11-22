@@ -416,6 +416,8 @@ fun DuringWorkScreen(
     stepLimit: Int? = null, onStepLimit: (Int?) -> Unit = {},
     triggerRunMinutes: Int? = null, onTriggerRunMinutes: (Int?) -> Unit = {},
     sandboxBudgetMinutes: Int = 30, onSandboxBudgetMinutes: (Int) -> Unit = {},
+    attachmentMaxMb: Int = 200, onAttachmentMaxMb: (Int) -> Unit = {},
+    workspaceMaxGb: Int = 4, onWorkspaceMaxGb: (Int) -> Unit = {},
     tokenBudget: Long? = null, onTokenBudget: (Long?) -> Unit = {},
     showTaskCost: Boolean = false, onShowTaskCost: (Boolean) -> Unit = {},
     deviceAccess: DeviceAccessSettings? = null,
@@ -424,6 +426,8 @@ fun DuringWorkScreen(
     var editingLimit by remember { mutableStateOf(false) }
     var editingTriggerLimit by remember { mutableStateOf(false) }
     var editingSandboxBudget by remember { mutableStateOf(false) }
+    var editingAttachmentLimit by remember { mutableStateOf(false) }
+    var editingWorkspaceLimit by remember { mutableStateOf(false) }
     var customLimit by remember { mutableStateOf("") }
     var editingTokenBudget by remember { mutableStateOf(false) }
     var customTokenBudget by remember { mutableStateOf("") }
@@ -470,6 +474,16 @@ fun DuringWorkScreen(
                 RowChevron()
             }
             ListRow(
+                MikaIcons.Clock, stringResource(R.string.settings_attachment_file_limit),
+                trPlural(R.plurals.settings_attachment_file_limit_mb_n, attachmentMaxMb),
+                onClick = { editingAttachmentLimit = true },
+            )
+            ListRow(
+                MikaIcons.Clock, stringResource(R.string.settings_workspace_size_limit),
+                trPlural(R.plurals.settings_workspace_size_limit_gb_n, workspaceMaxGb),
+                onClick = { editingWorkspaceLimit = true },
+            )
+            ListRow(
                 MikaIcons.Clock, stringResource(R.string.settings_task_token_budget),
                 onClick = {
                     customTokenBudget = tokenBudget?.takeIf { it !in TokenBudgetLimits.PRESETS }?.toString().orEmpty()
@@ -505,6 +519,16 @@ fun DuringWorkScreen(
             current = sandboxBudgetMinutes,
             onPick = { onSandboxBudgetMinutes(it); editingSandboxBudget = false },
             onDismiss = { editingSandboxBudget = false },
+        )
+        if (editingAttachmentLimit) AttachmentFileLimitDialog(
+            current = attachmentMaxMb,
+            onPick = { onAttachmentMaxMb(it); editingAttachmentLimit = false },
+            onDismiss = { editingAttachmentLimit = false },
+        )
+        if (editingWorkspaceLimit) WorkspaceLimitDialog(
+            current = workspaceMaxGb,
+            onPick = { onWorkspaceMaxGb(it); editingWorkspaceLimit = false },
+            onDismiss = { editingWorkspaceLimit = false },
         )
         if (editingTokenBudget) TokenBudgetDialog(
             title = stringResource(R.string.settings_task_token_budget),
@@ -607,6 +631,44 @@ private fun SandboxBudgetDialog(current: Int, onPick: (Int) -> Unit, onDismiss: 
                 Text(stringResource(R.string.settings_sandbox_budget_sub), Modifier.padding(bottom = 8.dp))
                 FeatureFlags.SANDBOX_BUDGET_MINUTES.forEachIndexed { i, m ->
                     RadioRow(trPlural(R.plurals.settings_sandbox_budget_minutes_n, m), selected = current == m, onClick = { onPick(m) }, first = i == 0)
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
+}
+
+/** 单个上传文件体积上限:只认几档,默认 200 MB,没有「不限制」。 */
+@Composable
+private fun AttachmentFileLimitDialog(current: Int, onPick: (Int) -> Unit, onDismiss: () -> Unit) {
+    MikaDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_attachment_file_limit)) },
+        text = {
+            Column {
+                Text(stringResource(R.string.settings_attachment_file_limit_sub), Modifier.padding(bottom = 8.dp))
+                FeatureFlags.ATTACHMENT_FILE_LIMIT_MB.forEachIndexed { i, mb ->
+                    RadioRow(trPlural(R.plurals.settings_attachment_file_limit_mb_n, mb), selected = current == mb, onClick = { onPick(mb) }, first = i == 0)
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+    )
+}
+
+/** 单个工作区空间上限:只认几档,默认 4 GB,没有「不限制」。 */
+@Composable
+private fun WorkspaceLimitDialog(current: Int, onPick: (Int) -> Unit, onDismiss: () -> Unit) {
+    MikaDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_workspace_size_limit)) },
+        text = {
+            Column {
+                Text(stringResource(R.string.settings_workspace_size_limit_sub), Modifier.padding(bottom = 8.dp))
+                FeatureFlags.WORKSPACE_LIMIT_GB.forEachIndexed { i, gb ->
+                    RadioRow(trPlural(R.plurals.settings_workspace_size_limit_gb_n, gb), selected = current == gb, onClick = { onPick(gb) }, first = i == 0)
                 }
             }
         },

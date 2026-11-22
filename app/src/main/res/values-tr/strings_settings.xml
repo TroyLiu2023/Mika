@@ -299,12 +299,12 @@
         <item quantity="other">%1$d dakika</item>
     </plurals>
     <string name="settings_attachment_file_limit">Yüklenen dosya başına sınır</string>
-    <string name="settings_attachment_file_limit_sub">Sohbet eki, WeChat görseli ve bilgisayar bağlantılı görev dosyası olarak kabul edilen en büyük tek dosya. Varsayılan 200 MB.</string>
+    <string name="settings_attachment_file_limit_sub">Sohbet ekleri ve cihazdan dosya içe aktarmada kabul edilen en büyük tek dosya; WeChat görselleri ve bilgisayar bağlantısı dosyaları sabit sınırda kalır. Varsayılan 200 MB.</string>
     <plurals name="settings_attachment_file_limit_mb_n">
         <item quantity="other">%1$d MB</item>
     </plurals>
     <string name="settings_workspace_size_limit">Çalışma alanı başına sınır</string>
-    <string name="settings_workspace_size_limit_sub">Bir sohbetin sanal alanının kullanabileceği en fazla depolama. Varsayılan 4 GB.</string>
+    <string name="settings_workspace_size_limit_sub">Sohbet ekleri ve cihazdan dosya içe aktarma için çalışma alanı alanı. Varsayılan 4 GB.</string>
     <plurals name="settings_workspace_size_limit_gb_n">
         <item quantity="other">%1$d GB</item>
     </plurals>

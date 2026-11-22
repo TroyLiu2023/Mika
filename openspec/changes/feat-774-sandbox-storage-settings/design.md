@@ -17,10 +17,15 @@ FeatureFlags 新键（只认档位内的值，档位外回落默认）→ 调用
 
 **Goals**
 - 两个限额按档位可调，默认行为与现状逐字节一致（不设置 = 200 MiB / 4 GB）。
-- 三条导入路径（聊天附件、微信图片、电脑发任务带文件）执行同一档位。
+- 档位覆盖聊天附件与设备文件导入（#800 的 `DeviceWorkspaceImports`：SAF 授权目录 + 手机助手），
+  每次导入现取档位（不是构造快照）。
 - 超限提示带实际档位值，不再硬编码 200 MiB。
 
 **Non-Goals**
+- 电脑传输（core `RemoteTaskFiles` 的 `MAX_BYTES` 200 MiB、app `PhoneTaskFiles` 的固定 workspace 检查）
+  不接档位——电脑端 CLI 侧没有设置界面，两侧限额分离会误导；保持固定并写进设置文案（PR #797 review）。
+- 微信图片不接档位——协议层 `WechatImages.MAX_BYTES`（10 MiB）在下载/校验阶段独立生效，整段
+  `ByteArray` 的内存方式也不适合放开到数百 MB；app 侧 room 检查保持固定 `WORKSPACE_MAX`。
 - 不动设备剩余空间安全线 `MIN_FREE`（500 MiB，设备安全）。
 - 不动浏览器上传暂存 `UploadStaging`（web 自动化域，另一回事）、分享上限
   `ShareRules.MAX_BYTES` / `SHARE_MAX_BYTES`（沙箱→用户导出，防呆用途）、
@@ -55,11 +60,11 @@ FeatureFlags 新键（只认档位内的值，档位外回落默认）→ 调用
    `AttachmentFailure` 里带字节数（原因枚举被 ChatViewModel 映射，扩模型
    牵动大）。档位读取是 SharedPreferences 一次 getInt，渲染频次低，无性能问题。
 
-5. **接线点：三个调用方各自读一次 FeatureFlags。**
-   `MikaApp.importAttachments`、`androidWechatImages` 的 room lambda、
-   `PhoneTaskFiles.start`（含前置 sum 检查与 room lambda）。三处都能拿到
-   context，不新增跨层传参。改设置即刻生效（下一次导入就读新值），
-   与「下一个任务起生效」的时长档位语义不同但更自然——存储限额没有
+5. **接线点：两条入口，档位逐次现取。**
+   `MikaApp.importAttachments`（聊天附件）与 `TaskRun` 构造 `DeviceWorkspaceImports` 时注入
+   `limits: () -> AttachmentLimits` provider，`copy()` 每次导入现取传给 `Attachments.importOne`
+   （#800 把设备导入收拢进这个类，SAF `fromFolder` 与助手 `fromHelper` 共用 `copy`，一处接线两路生效）。
+   微信与电脑路径不接（见 Non-Goals）。改设置即刻生效（下一次导入就读新值）——存储限额没有
    「进行中任务」的一致性问题，导入是逐文件瞬时的。
 
 ## Risks / Trade-offs
@@ -68,8 +73,8 @@ FeatureFlags 新键（只认档位内的值，档位外回落默认）→ 调用
   复查一次，不受档位影响，保持兜底。
 - [改 `chat_attach_too_large` 加占位符漏改某语言] → `tools/i18n` 的 parity
   检查会红，CI 挡住。
-- [WechatImageFiles/PhoneTaskFiles 的 room 检查漏接新档位] → 单测各覆盖一条
-  「放宽后放行」路径。
+- [范围被误解为全入口生效] → 设置副标题写明「仅聊天附件与设备文件导入；微信/电脑保持固定限额」；
+  `DeviceWorkspaceImportsTest` 断言 provider 逐次现取（同实例调档即生效，防回退成构造快照）。
 
 ## Migration Plan
 

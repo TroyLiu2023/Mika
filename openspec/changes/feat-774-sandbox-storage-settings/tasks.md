@@ -20,3 +20,13 @@
 
 - [x] 4.1 推分支、建 PR（标题「现状 → 改动」句式、关联 #774、首屏实测证据、如实写明测试覆盖）
 - [x] 4.2 等 CI 四组全绿（app/cli/core/relay 四组 pass）
+
+## 5. PR #797 review 返工（方案 A：档位只覆盖聊天附件与设备文件导入）
+
+- [x] 5.1 rebase 到含 #800 的最新 main：`Attachments`/`AndroidDeviceFiles`/`TaskRun` 冲突按新结构解决（importOne 的 onCopied 重构与 limits 共存；设备导入收拢进 `DeviceWorkspaceImports`）
+- [x] 5.2 回退范围外接线：`WechatImageFiles`（room 检查回固定 `WORKSPACE_MAX`，去掉构造期档位快照）、`PhoneTaskFiles`（前置 sum 与 room 检查回固定值），两文件与 main 零差异
+- [x] 5.3 范围内新入口接线：`DeviceWorkspaceImports` 加 `limits: () -> AttachmentLimits` provider，`copy()` 逐次现取；`TaskRun` 构造点注入 FeatureFlags 档位
+- [x] 5.4 设置副标题两串 ×12 语言改写，写明「仅聊天附件与设备文件导入；微信/电脑保持固定限额」
+- [x] 5.5 单测：`DeviceWorkspaceImportsTest` 补「档位逐次现取、小限额拒绝/放宽放行」用例
+- [x] 5.6 本地全量（core/cli/app 单测 + i18n 检查）+ openspec validate——app 单测 3300+ 全绿（core/relay 与 main 零差异未重跑，CI 兜底）
+- [ ] 5.7 推送、更新 PR 描述、回复 review 评论、等 CI 四组全绿

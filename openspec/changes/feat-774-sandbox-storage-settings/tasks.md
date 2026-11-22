@@ -29,4 +29,4 @@
 - [x] 5.4 设置副标题两串 ×12 语言改写，写明「仅聊天附件与设备文件导入；微信/电脑保持固定限额」
 - [x] 5.5 单测：`DeviceWorkspaceImportsTest` 补「档位逐次现取、小限额拒绝/放宽放行」用例
 - [x] 5.6 本地全量（core/cli/app 单测 + i18n 检查）+ openspec validate——app 单测 3300+ 全绿（core/relay 与 main 零差异未重跑，CI 兜底）
-- [ ] 5.7 推送、更新 PR 描述、回复 review 评论、等 CI 四组全绿
+- [ ] 5.7 推送、更新 PR 描述、回复 review 评论、等 CI 四组全绿——前三项已完成（d920103e 已推、正文已改、范围决策与 CI 说明两条评论已发）；app/cli/relay 绿，core 红系 main 自身 `DocsConsistencyTest` 被维护者 2026-11-22 规划文档打红（本分支 core//docs/ 零改动，main 两个 tip 同款失败），main 转绿后 rebase 重推即闭环

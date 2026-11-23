@@ -114,6 +114,9 @@ class FeatureFlags(private val prefs: SharedPreferences) {
 
     fun workspaceMaxBytes(): Long = workspaceMaxGb().toLong() shl 30
 
+    /** 聊天附件与设备文件导入共用的体积档位,每次取用都是当前设置。 */
+    fun attachmentLimits() = com.wangzan101.mika.cap.sandbox.AttachmentLimits(attachmentMaxBytes(), workspaceMaxBytes())
+
     fun setWorkspaceMaxGb(gb: Int) {
         prefs.edit().putInt(WORKSPACE_LIMIT, gb.takeIf { it in WORKSPACE_LIMIT_GB } ?: 0).commit()
     }

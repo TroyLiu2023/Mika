@@ -51,6 +51,7 @@ import com.wangzan101.mika.voice.model.SttSelectionController
 import com.wangzan101.mika.core.model.TtsCapabilities
 import com.wangzan101.mika.voice.model.VoiceAccount
 import com.wangzan101.mika.voice.model.VoiceAccountManager
+import com.wangzan101.mika.voice.model.CallEngine
 import com.wangzan101.mika.voice.model.VoiceCapability
 import com.wangzan101.mika.voice.model.VoiceCatalogSnapshot
 import com.wangzan101.mika.voice.model.VoiceModel
@@ -190,10 +191,24 @@ internal fun VoiceOptionList(
     }
 }
 
-/** A list of voices in a bottom sheet; the saved one is listed even when it is not a known voice. */
+/**
+ * A list of voices in a bottom sheet; the saved one is listed even when it is not a known voice. The last row takes
+ * any voice id (a cloned voice, one newer than the list), so the list never limits what can be used.
+ */
 @Composable
-internal fun VoicePickerSheet(voices: List<String>, onPick: (String) -> Unit, onDismiss: () -> Unit) {
-    ActionSheet(stringResource(R.string.voice_voice), voices.map { voice -> SheetAction(VoiceVoices.label(voice)) { onPick(voice) } }, onDismiss)
+internal fun VoicePickerSheet(voices: List<String>, onPick: (String) -> Unit, onDismiss: () -> Unit, model: VoiceModel? = null) {
+    var typing by remember { mutableStateOf(false) }
+    if (typing) {
+        TextEntryDialog(
+            title = stringResource(R.string.voice_enter_voice_id), label = stringResource(R.string.voice_voice_id),
+            onDismiss = onDismiss, onConfirm = { onPick(it); onDismiss() }, tag = "voice-id-input",
+        )
+        return
+    }
+    val actions = voices.map { voice -> SheetAction(VoiceVoices.label(model, voice)) { onPick(voice) } } +
+        SheetAction(stringResource(R.string.voice_enter_voice_id), MikaIcons.Edit) { typing = true }
+    // 选「手动输入」时面板会顺手关掉,这里拦下,让输入框接着出来
+    ActionSheet(stringResource(R.string.voice_voice), actions) { if (!typing) onDismiss() }
 }
 
 /** Shown under each use page: where to connect more services. */
@@ -234,7 +249,7 @@ internal fun VoiceHubSection(
     readAloudOn: Boolean,
     onStt: () -> Unit,
     onTts: () -> Unit,
-    onRealtime: () -> Unit,
+    onCallMode: () -> Unit,
     onServices: () -> Unit,
 ) {
     val selections = snapshot.selections
@@ -252,9 +267,14 @@ internal fun VoiceHubSection(
         ListRow(MikaIcons.Sound, stringResource(R.string.voice_hub_tts),
             if (readAloudOn) ttsName ?: stringResource(R.string.voice_hub_none) else stringResource(R.string.voice_hub_off),
             onClick = onTts, modifier = Modifier.testTag("voice-hub-tts")) { RowChevron() }
-        ListRow(MikaIcons.Handset, stringResource(R.string.voice_hub_realtime), realtimeName ?: stringResource(R.string.voice_hub_none),
-            onClick = onRealtime, modifier = Modifier.testTag("voice-hub-realtime")) {
-            if (realtimeName == null) StatusPill(stringResource(R.string.voice_hub_setup), PillTone.Warn)
+        val engine = selections.resolvedEngine
+        val needsSetup = when (engine) {
+            CallEngine.Standard -> selections.listenUnusableForCalls() || selections.tts == null
+            CallEngine.Realtime -> realtimeName == null
+        }
+        ListRow(MikaIcons.Handset, stringResource(R.string.voice_hub_call_mode), callModeLine(snapshot, engine),
+            onClick = onCallMode, modifier = Modifier.testTag("voice-hub-call-mode")) {
+            if (needsSetup) StatusPill(stringResource(R.string.voice_hub_setup), PillTone.Warn)
             RowChevron()
         }
     }

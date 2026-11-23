@@ -64,6 +64,12 @@ import com.wangzan101.mika.calls.CallRealtimeSession
 import com.wangzan101.mika.calls.CallVoiceProfile
 import com.wangzan101.mika.calls.CallVoiceProtocol
 import com.wangzan101.mika.calls.VolcRealtimeClient
+import com.wangzan101.mika.calls.VolcRealtimeProtocol
+import com.wangzan101.mika.voice.cascade.CallUse
+import com.wangzan101.mika.voice.cascade.CascadeEngine
+import com.wangzan101.mika.voice.cascade.LlmBrain
+import com.wangzan101.mika.voice.model.CallEngine
+import com.wangzan101.mika.voice.model.VoiceModelError
 import com.wangzan101.mika.calls.VolcRealtimeConfig
 import com.wangzan101.mika.calls.VolcRealtimeCredentials
 import com.wangzan101.mika.calls.VolcRealtimeException
@@ -351,7 +357,7 @@ private fun PageButton(label: String, modifier: Modifier = Modifier, onClick: ()
  * 进通话前的门:没权限、权限被拒过、没配凭据、配置的协议不支持通话,各占一页;
  * 都在页内给按钮,不自动弹系统框。
  */
-enum class VoiceCallGateStage { NeedPermission, PermissionDenied, NeedCredentials, UnsupportedProtocol }
+enum class VoiceCallGateStage { NeedPermission, PermissionDenied, NeedCredentials, UnsupportedProtocol, NeedListenSpeak }
 
 /**
  * 门禁页:和通话页同一个深色全屏骨架,球安静地转(Globe),中间是说明和按钮。
@@ -402,6 +408,12 @@ fun VoiceCallGate(
                         VoiceCallGateStage.NeedCredentials -> {
                             title = stringResource(R.string.voicecall_setup_title)
                             body = stringResource(R.string.voicecall_setup_body)
+                            action = stringResource(R.string.voicecall_go_setup)
+                            go = onGoConfigure
+                        }
+                        VoiceCallGateStage.NeedListenSpeak -> {
+                            title = stringResource(R.string.voicecall_standard_title)
+                            body = stringResource(R.string.voicecall_standard_body)
                             action = stringResource(R.string.voicecall_go_setup)
                             go = onGoConfigure
                         }
@@ -471,6 +483,10 @@ class VoiceCallController(
 
     /** After migration both entry points resolve the active model through this one controller. */
     private val realtime = VoiceModelEnvironment.get(deps.context).realtime
+    private val cascade = CascadeEngine(deps.context)
+
+    /** Standard calls (listen → think → speak) need no realtime model; their gate is the cascade's readiness. */
+    private fun standard(): Boolean = realtime.migrated && cascade.engine(CallUse.InApp) == CallEngine.Standard
 
     /** The active realtime profile; legacy reads the profile store, migrated reads the catalog. */
     private fun activeProfile(): CallVoiceProfile? {
@@ -495,6 +511,18 @@ class VoiceCallController(
         val current = stage
         if (current is VoiceCallStage.InCall && current.call.session.state.value !is VoiceCallState.Ended) {
             current.call.visible = true
+            return
+        }
+        if (standard()) {
+            if (cascade.blocker(CallUse.InApp) != null) {
+                stage = VoiceCallStage.Gate(VoiceCallGateStage.NeedListenSpeak)
+                return
+            }
+            when {
+                micGranted() -> openCall()
+                micPermanentlyDenied() -> stage = VoiceCallStage.Gate(VoiceCallGateStage.PermissionDenied)
+                else -> stage = VoiceCallStage.Gate(VoiceCallGateStage.NeedPermission)
+            }
             return
         }
         val profile = activeProfile()
@@ -533,7 +561,7 @@ class VoiceCallController(
     /** 回到前台时重查:在设置里开了权限就直接开。 */
     fun onResume() {
         val current = stage
-        if (current is VoiceCallStage.Gate && current.stage != VoiceCallGateStage.NeedCredentials && micGranted()) openCall()
+        if (current is VoiceCallStage.Gate && (current.stage == VoiceCallGateStage.NeedPermission || current.stage == VoiceCallGateStage.PermissionDenied) && micGranted()) openCall()
     }
 
     /** 收起:通话还活着就只藏页面(前台服务保活);失败不重试的落 Ended 收场;已结束的直接拆掉。 */
@@ -579,8 +607,9 @@ class VoiceCallController(
 
     private fun openCall() {
         cancelCallScope()
-        val profile = activeProfile()
-        if (profile == null || profile.protocol != CallVoiceProtocol.VOLC_DUPLEX) {
+        val standard = standard()
+        val profile = if (standard) null else activeProfile()
+        if (!standard && (profile == null || profile.protocol != CallVoiceProtocol.VOLC_DUPLEX)) {
             stage = VoiceCallStage.Gate(VoiceCallGateStage.UnsupportedProtocol)
             return
         }
@@ -611,7 +640,20 @@ class VoiceCallController(
             scope = callScope,
             audio = AndroidVoiceCallAudio(deps.context),
             foregroundResumed = deps.foregroundResumed,
-            connect = {
+            connect = connect@{
+                if (standard) {
+                    return@connect try {
+                        cascade.open(
+                            CallUse.InApp,
+                            VolcRealtimeProtocol.AGENT_TOOLS_PROMPT.trim(),
+                            listOf(LlmBrain.toolSpec(VolcRealtimeProtocol.mikaRequestTool())),
+                            language = null,
+                        ).also { currentRealtime = it }
+                    } catch (e: VoiceModelError) {
+                        throw VolcRealtimeException(VolcRealtimeException.Kind.AUTH)
+                    }
+                }
+                val profile = profile!!
                 val credentials = activeCredentials(profile)
                     ?: throw VolcRealtimeException(VolcRealtimeException.Kind.AUTH)
                 VolcRealtimeClient(endpoint = profile.endpoint).connect(
@@ -665,7 +707,7 @@ class VoiceCallDeps(
  * 回前台重查都接好。通话页本身不感知前台服务在不在——保活是服务的事,页面只看会话状态。
  */
 @Composable
-fun VoiceCallHost(deps: VoiceCallDeps, openSignal: Int, onGoConfigure: () -> Unit) {
+fun VoiceCallHost(deps: VoiceCallDeps, openSignal: Int, onGoConfigure: (VoiceCallGateStage) -> Unit) {
     val context = LocalContext.current
     val controller = remember(deps) {
         VoiceCallController(
@@ -721,7 +763,7 @@ fun VoiceCallHost(deps: VoiceCallDeps, openSignal: Int, onGoConfigure: () -> Uni
             },
             onGoConfigure = {
                 controller.collapse()
-                onGoConfigure()
+                onGoConfigure(stage.stage)
             },
             onCollapse = controller::collapse,
         )

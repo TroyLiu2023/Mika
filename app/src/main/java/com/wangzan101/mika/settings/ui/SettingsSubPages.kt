@@ -5,6 +5,8 @@ import androidx.compose.ui.semantics.semantics
 import com.wangzan101.mika.i18n.tr
 import com.wangzan101.mika.i18n.trPlural
 import com.wangzan101.mika.R
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
 import com.wangzan101.mika.settings.ThemeAccent
@@ -83,10 +85,10 @@ fun RoutesScreen(count: Int?, onClear: () -> Unit, onBack: () -> Unit) {
     }
 }
 
-/** 设置 › 恢复与修复:手机操作的几个授权开关,下面是兼容性自检的入口。 */
+/** 设置 › 恢复与修复:手机操作的几个授权开关,下面是兼容性自检的入口;[scrollState] 由切页的一方给进来,从自检回来才停在原来的位置。 */
 @Composable
-fun RecoveryScreen(onBack: () -> Unit, onOpenSelfCheck: () -> Unit = {}) {
-    PageScaffold(stringResource(R.string.settings_recovery), onBack) {
+fun RecoveryScreen(onBack: () -> Unit, onOpenSelfCheck: () -> Unit = {}, scrollState: ScrollState = rememberScrollState()) {
+    PageScaffold(stringResource(R.string.settings_recovery), onBack, scrollState = scrollState) {
         RecoverySwitches()
         GroupCard {
             ListRow(

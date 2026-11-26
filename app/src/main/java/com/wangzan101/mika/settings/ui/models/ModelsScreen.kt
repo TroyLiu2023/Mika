@@ -123,8 +123,8 @@ internal fun ProviderRow(p: Provider, line: String, first: Boolean, warning: Str
             Column(Modifier.weight(1f)) {
                 Text(ModelsCopy.providerName(p), style = MikaType.Body, color = c.ink, maxLines = 1)
                 val poolCount = com.wangzan101.mika.core.model.KeyPoolManager.shared.keyCount(p.id)
-                val poolTag = if (poolCount > 1) " · Key Pool ($poolCount keys)" else ""
-                Text(line + poolTag, Modifier.padding(top = 2.dp), style = MikaType.Caption, color = if (poolCount > 1) c.ok else c.ink3)
+                val poolTag = KeyPoolCopy.poolTag(poolCount)
+                Text(line + (poolTag?.let { " · $it" } ?: ""), Modifier.padding(top = 2.dp), style = MikaType.Caption, color = if (poolCount > 1) c.ok else c.ink3)
                 warning?.let { Text(it, Modifier.padding(top = 2.dp).testTag("provider-warning-${p.name}"), style = MikaType.Caption, color = c.warn) }
             }
             RowChevron()

@@ -117,7 +117,7 @@ internal fun FallbackSection(
                 val previewText = if (expanded) {
                     stringResource(R.string.model_fallback_collapse_hint)
                 } else if (hasAny) {
-                    val primarySnippet = ui.configFor(role)?.model?.substringAfterLast('/') ?: "Primary"
+                    val primarySnippet = ui.configFor(role)?.model?.substringAfterLast('/') ?: stringResource(R.string.model_fallback_primary_badge)
                     val fallbackSnippets = fallbacks.mapNotNull { id ->
                         ui.configs.firstOrNull { it.id == id }?.model?.substringAfterLast('/')
                     }
@@ -136,7 +136,7 @@ internal fun FallbackSection(
             }
             Icon(
                 MikaIcons.Chevron,
-                contentDescription = if (expanded) "Collapse" else "Expand",
+                contentDescription = stringResource(if (expanded) R.string.calls_collapse else R.string.calls_expand),
                 tint = c.ink3,
                 modifier = Modifier
                     .size(16.dp)
@@ -260,7 +260,7 @@ internal fun FallbackSection(
                         ) {
                             Icon(
                                 MikaIcons.Close,
-                                contentDescription = "Remove backup",
+                                contentDescription = stringResource(R.string.model_fallback_remove_desc),
                                 tint = c.ink3,
                                 modifier = Modifier.size(16.dp),
                             )

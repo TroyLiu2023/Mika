@@ -208,7 +208,7 @@ internal fun AddProviderForm(ui: ModelSetupUi, actions: ModelSetupActions, stand
             // Live pool feedback
             when {
                 poolActive -> Text(
-                    "${parsedKeys.size} keys detected — pool will auto-rotate on rate-limit or timeout",
+                    KeyPoolCopy.detectedSetup(parsedKeys.size),
                     Modifier.padding(top = 6.dp).testTag("setup-key-notice"),
                     style = MikaType.Caption, color = c.ok,
                 )
@@ -223,7 +223,7 @@ internal fun AddProviderForm(ui: ModelSetupUi, actions: ModelSetupActions, stand
                     style = MikaType.Caption, color = c.ink2,
                 )
                 f.apiKey.isNotBlank() -> Text(
-                    "1 key ready",
+                    stringResource(R.string.model_key_one_ready),
                     Modifier.padding(top = 6.dp),
                     style = MikaType.Caption, color = c.ok,
                 )

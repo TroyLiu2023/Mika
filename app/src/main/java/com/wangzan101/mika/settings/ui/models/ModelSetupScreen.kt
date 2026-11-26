@@ -449,15 +449,11 @@ fun ModelSetupContent(
                     RolesSection(ui, onPick, actions.setReasoningEffort)
                     FooterNote(ModelSetupCopy.ONBOARDING_NOTE)
                 } else {
-                    // Providers entry — show count + total key count in subtitle
-                    val totalKeys = ui.providers.sumOf { p ->
-                        ui.providerKeyMap[p.id]?.size ?: 0
-                    }
-                    val providerSubtitle = when {
-                        ui.providers.isEmpty() -> "No providers connected"
-                        totalKeys > 1 -> "${ui.providers.size} providers · $totalKeys keys in pool"
-                        else -> "${ui.providers.size} provider${if (ui.providers.size > 1) "s" else ""}"
-                    }
+                    // 服务商入口的副标题:写服务商数,池里有多把 Key 时再带上 Key 数
+                    val providerSubtitle = KeyPoolCopy.providersSubtitle(
+                        ui.providers.size,
+                        ui.providers.sumOf { p -> ui.providerKeyMap[p.id]?.size ?: 0 },
+                    )
                     GroupCard {
                         ListRow(MikaIcons.Key, ModelsCopy.PROVIDERS, providerSubtitle, first = true, onClick = actions.openProviders) {
                             RowChevron()

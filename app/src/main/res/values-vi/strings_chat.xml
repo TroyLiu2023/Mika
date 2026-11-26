@@ -253,6 +253,8 @@
     <string name="pip_closed_hint">Đã đóng cho tác vụ này. Nhấn “Hiện màn hình” ở góc dưới bên phải, hoặc mở “Màn hình nền” trong menu bên.</string>
     <string name="chat_conversation_tokens">Cuộc trò chuyện này: %1$s</string>
     <string name="chat_conversation_tokens_partial">Cuộc trò chuyện này: ít nhất %1$s</string>
+    <string name="chat_current_model">Mô hình hiện tại</string>
+    <string name="chat_usage_view_details">Xem mức dùng token</string>
     <string name="chat_task_cost_estimate">Ước tính %1$s</string>
     <string name="chat_task_cost_partial">%1$s (một phần)</string>
     <string name="chat_task_cost_unavailable">Không có thông tin chi phí</string>

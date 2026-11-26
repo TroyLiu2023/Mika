@@ -265,6 +265,8 @@
     <string name="pip_closed_hint">Bu görev için kapatıldı. Sağ alttaki \“Ekranı göster\”e dokunun veya yan menüden \“Arka plan ekranları\”nı açın.</string>
     <string name="chat_conversation_tokens">Bu sohbet: %1$s</string>
     <string name="chat_conversation_tokens_partial">Bu sohbet: en az %1$s</string>
+    <string name="chat_current_model">Güncel model</string>
+    <string name="chat_usage_view_details">Token kullanımını görüntüle</string>
     <string name="chat_task_cost_estimate">Tahmini %1$s</string>
     <string name="chat_task_cost_partial">%1$s (kısmi)</string>
     <string name="chat_task_cost_unavailable">Maliyet kullanılamıyor</string>

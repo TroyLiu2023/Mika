@@ -224,6 +224,8 @@
     <string name="pip_closed_hint">نمای این کار بسته شد. روی «نمایش صفحه» در پایین سمت راست بزنید، یا «صفحه‌های پس‌زمینه» را در منوی کناری باز کنید.</string>
     <string name="chat_conversation_tokens">این گفتگو: %1$s</string>
     <string name="chat_conversation_tokens_partial">این گفتگو: حداقل %1$s</string>
+    <string name="chat_current_model">مدل فعلی</string>
+    <string name="chat_usage_view_details">مشاهده مصرف توکن</string>
     <string name="follow_up_steer">هدایت کار</string>
     <string name="follow_up_queue">قرار دادن در صف</string>
     <string name="follow_up_steer_hint">مرحلهٔ بعد کار فعلی را بر اساس پیام شما تنظیم می‌کند</string>

@@ -121,10 +121,11 @@
     <string name="model_key_add_note">キーを 1 つ貼り付けてください。複数のキーはカンマか改行で区切ると、まとめて追加できます。</string>
     <string name="model_keys_detected_add">%1$s を検出しました。すべてローテーションに追加されます</string>
     <string name="model_key_one_ready">1 件のキーを追加できます</string>
-    <string name="model_key_pool_tag">キープール（%1$s）</string>
+    <string name="model_provider_line_pool">%1$s · キープール（%2$s）</string>
     <string name="model_keys_detected_setup">%1$s を検出しました。レート制限やタイムアウト時は自動で切り替わります</string>
     <string name="model_providers_none">プロバイダーが接続されていません</string>
-    <string name="model_providers_keys_in_pool">プールに %1$s</string>
+    <string name="model_providers_keys_in_pool">%1$s · プールに %2$s</string>
+    <string name="model_key_remove">削除</string>
     <string name="model_fallback_remove_desc">バックアップモデルを削除</string>
     <plurals name="model_keys_count">
         <item quantity="other">%1$d件のキー</item>

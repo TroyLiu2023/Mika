@@ -121,10 +121,11 @@
     <string name="model_key_add_note">Paste one key, or multiple keys separated by commas or new lines to add them all at once.</string>
     <string name="model_keys_detected_add">%1$s detected — all will be added to the rotation pool</string>
     <string name="model_key_one_ready">1 key ready to add</string>
-    <string name="model_key_pool_tag">Key Pool (%1$s)</string>
+    <string name="model_provider_line_pool">%1$s · Key Pool (%2$s)</string>
     <string name="model_keys_detected_setup">%1$s detected — pool will auto-rotate on rate-limit or timeout</string>
     <string name="model_providers_none">No providers connected</string>
-    <string name="model_providers_keys_in_pool">%1$s in pool</string>
+    <string name="model_providers_keys_in_pool">%1$s · %2$s in pool</string>
+    <string name="model_key_remove">Remove</string>
     <string name="model_fallback_remove_desc">Remove backup</string>
     <plurals name="model_keys_count">
         <item quantity="one">%1$d key</item>

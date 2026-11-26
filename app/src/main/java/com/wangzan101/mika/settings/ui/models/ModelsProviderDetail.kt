@@ -132,7 +132,7 @@ internal fun KeyPoolSection(
                     RowValue(stringResource(R.string.model_key_active), ValueTone.Ok)
                     if (keys.size > 1) {
                         Text(
-                            stringResource(R.string.model_fallback_remove_confirm),
+                            stringResource(R.string.model_key_remove),
                             color = c.bad,
                             style = MikaType.Caption,
                             modifier = Modifier

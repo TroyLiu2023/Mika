@@ -136,7 +136,7 @@ internal fun FallbackSection(
             }
             Icon(
                 MikaIcons.Chevron,
-                contentDescription = stringResource(if (expanded) R.string.calls_collapse else R.string.calls_expand),
+                contentDescription = stringResource(if (expanded) R.string.collapse else R.string.expand),
                 tint = c.ink3,
                 modifier = Modifier
                     .size(16.dp)

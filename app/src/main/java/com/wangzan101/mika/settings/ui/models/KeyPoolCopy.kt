@@ -39,17 +39,17 @@ object KeyPoolCopy {
     fun addConfirm(count: Int, save: String): String =
         if (count > 1) trPlural(R.plurals.model_key_add_count, count) else save
 
-    /** 服务商列表里一行副标题末尾的密钥池说明;池里最多一把时没有。 */
-    fun poolTag(count: Int): String? = if (count > 1) tr(R.string.model_key_pool_tag, keys(count)) else null
+    /** 服务商列表里一行的副标题:池里有多把 Key 时在 [line] 后面带上密钥池说明,最多一把时就是 [line]。 */
+    fun providerLine(line: String, count: Int): String =
+        if (count > 1) tr(R.string.model_provider_line_pool, line, keys(count)) else line
 
     /**
      * 服务商入口的副标题:没连服务商、池里有多把 Key、只有服务商数三种。
      * 服务商数量按当前语言的复数规则说,只有一家但池里有多把时不再写成「1 providers」。
      */
     fun providersSubtitle(providers: Int, keysInPool: Int): String {
-        val count = trPlural(R.plurals.models_providers_count, providers)
         if (providers == 0) return tr(R.string.model_providers_none)
-        if (keysInPool > 1) return count + " · " + tr(R.string.model_providers_keys_in_pool, keys(keysInPool))
-        return count
+        val count = trPlural(R.plurals.models_providers_count, providers)
+        return if (keysInPool > 1) tr(R.string.model_providers_keys_in_pool, count, keys(keysInPool)) else count
     }
 }

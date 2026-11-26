@@ -121,10 +121,11 @@
     <string name="model_key_add_note">Dán một khóa, hoặc nhiều khóa cách nhau bằng dấu phẩy hoặc xuống dòng để thêm tất cả cùng lúc.</string>
     <string name="model_keys_detected_add">Đã phát hiện %1$s — tất cả sẽ được thêm vào nhóm luân phiên</string>
     <string name="model_key_one_ready">1 khóa đã sẵn sàng để thêm</string>
-    <string name="model_key_pool_tag">Nhóm khóa (%1$s)</string>
+    <string name="model_provider_line_pool">%1$s · Nhóm khóa (%2$s)</string>
     <string name="model_keys_detected_setup">Đã phát hiện %1$s — sẽ tự động luân phiên khi gặp giới hạn tốc độ hoặc hết thời gian chờ</string>
     <string name="model_providers_none">Chưa kết nối nhà cung cấp nào</string>
-    <string name="model_providers_keys_in_pool">trong nhóm có %1$s</string>
+    <string name="model_providers_keys_in_pool">%1$s · trong nhóm có %2$s</string>
+    <string name="model_key_remove">Xóa</string>
     <string name="model_fallback_remove_desc">Xóa mô hình dự phòng</string>
     <plurals name="model_keys_count">
         <item quantity="other">%1$d khóa</item>

@@ -121,10 +121,11 @@
     <string name="model_key_add_note">Вставьте один ключ или несколько через запятую либо с новой строки — добавятся все.</string>
     <string name="model_keys_detected_add">Обнаружено: %1$s — все будут добавлены в пул ротации</string>
     <string name="model_key_one_ready">1 ключ готов к добавлению</string>
-    <string name="model_key_pool_tag">Пул ключей (%1$s)</string>
+    <string name="model_provider_line_pool">%1$s · Пул ключей (%2$s)</string>
     <string name="model_keys_detected_setup">Обнаружено: %1$s — при лимите запросов или тайм-ауте ключи будут чередоваться автоматически</string>
     <string name="model_providers_none">Провайдеры не подключены</string>
-    <string name="model_providers_keys_in_pool">в пуле %1$s</string>
+    <string name="model_providers_keys_in_pool">%1$s · в пуле %2$s</string>
+    <string name="model_key_remove">Удалить</string>
     <string name="model_fallback_remove_desc">Удалить резервную модель</string>
     <plurals name="model_keys_count">
         <item quantity="one">%1$d ключ</item>

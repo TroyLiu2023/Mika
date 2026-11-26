@@ -121,10 +121,11 @@
     <string name="model_key_add_note">Tempel satu kunci, atau beberapa kunci yang dipisahkan koma atau baris baru untuk menambahkannya sekaligus.</string>
     <string name="model_keys_detected_add">%1$s terdeteksi — semuanya akan ditambahkan ke rotasi</string>
     <string name="model_key_one_ready">1 kunci siap ditambahkan</string>
-    <string name="model_key_pool_tag">Kumpulan kunci (%1$s)</string>
+    <string name="model_provider_line_pool">%1$s · Kumpulan kunci (%2$s)</string>
     <string name="model_keys_detected_setup">%1$s terdeteksi — dirotasi otomatis saat kena batas kecepatan atau waktu habis</string>
     <string name="model_providers_none">Belum ada penyedia yang terhubung</string>
-    <string name="model_providers_keys_in_pool">%1$s di kumpulan</string>
+    <string name="model_providers_keys_in_pool">%1$s · %2$s di kumpulan</string>
+    <string name="model_key_remove">Hapus</string>
     <string name="model_fallback_remove_desc">Hapus model cadangan</string>
     <plurals name="model_keys_count">
         <item quantity="other">%1$d kunci</item>

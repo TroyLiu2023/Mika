@@ -59,13 +59,13 @@ class KeyPoolCopyTest {
         assertEquals("添加 3 个 Key", KeyPoolCopy.addConfirm(3, "保存"))
     }
 
-    @Test fun poolTagOnlyForSeveralKeys() {
+    @Test fun providerLineNamesThePoolOnlyForSeveralKeys() {
         UiText.source = ResFileTexts.english
-        assertNull(KeyPoolCopy.poolTag(1))
-        assertEquals("Key Pool (2 keys)", KeyPoolCopy.poolTag(2))
+        assertEquals("deepseek-chat", KeyPoolCopy.providerLine("deepseek-chat", 1))
+        assertEquals("deepseek-chat · Key Pool (2 keys)", KeyPoolCopy.providerLine("deepseek-chat", 2))
         UiText.source = ResFileTexts.chinese
-        assertNull(KeyPoolCopy.poolTag(0))
-        assertEquals("Key 池（2 个 Key）", KeyPoolCopy.poolTag(2))
+        assertEquals("deepseek-chat", KeyPoolCopy.providerLine("deepseek-chat", 0))
+        assertEquals("deepseek-chat · Key 池（2 个 Key）", KeyPoolCopy.providerLine("deepseek-chat", 2))
     }
 
     @Test fun providersSubtitleCountsProvidersWithThePluralForms() {

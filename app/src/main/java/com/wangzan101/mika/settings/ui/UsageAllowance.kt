@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -47,10 +48,13 @@ import com.wangzan101.mika.settings.ui.models.refresh
 
 private val allowanceClient by lazy { ProviderAllowanceClient(ProviderStore.modelHttp) }
 
-/** 一家服务商一次余额查询的状态:从加载中到有值(或查不到为 null)。 */
-internal class AllowanceQuery internal constructor(source: AllowanceSource?) {
+/**
+ * 一家服务商一次余额查询的状态:从加载中到有值(或查不到为 null)。
+ * [updated] 是上次查到的时刻,跨手动刷新保留(刷新中、刷新失败都还显示上一次的时间),换 Key 才清掉。
+ */
+internal class AllowanceQuery internal constructor(source: AllowanceSource?, lastUpdated: MutableState<Instant?>) {
     var value: ProviderAllowance? by mutableStateOf(null)
-    var updated: Instant? by mutableStateOf(null)
+    var updated: Instant? by lastUpdated
     var loading: Boolean by mutableStateOf(source != null)
 }
 
@@ -63,7 +67,8 @@ internal class AllowanceQuery internal constructor(source: AllowanceSource?) {
 internal fun rememberAllowanceQuery(
     provider: Provider, source: AllowanceSource?, store: ProviderStore, revision: Long, refresh: Int = 0,
 ): AllowanceQuery {
-    val query = remember(provider.baseUrl, source, revision, refresh) { AllowanceQuery(source) }
+    val lastUpdated = remember(provider.baseUrl, source, revision) { mutableStateOf<Instant?>(null) }
+    val query = remember(provider.baseUrl, source, revision, refresh) { AllowanceQuery(source, lastUpdated) }
     if (source != null) {
         LaunchedEffect(provider.baseUrl, source, revision, refresh) {
             val result = try {

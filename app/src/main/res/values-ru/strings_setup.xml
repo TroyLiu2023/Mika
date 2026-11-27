@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">Mika получает и сохраняет список моделей провайдера. Если основной модели ещё нет, рекомендуемая модель один раз вызывает тестовый инструмент и становится основной, только если это удалось.</string>
     <string name="next">Далее</string>
     <string name="model_failed">Не удалось подключиться: %1$s</string>
+    <string name="model_list_fail_auth">API-ключ недействителен или нет доступа</string>
+    <string name="model_list_fail_quota">Квота этой учётной записи исчерпана</string>
+    <string name="model_list_fail_rate_limited">Слишком много запросов, попробуйте позже</string>
+    <string name="model_list_fail_network">Не удалось подключиться к этому адресу, проверьте сеть и базовый URL</string>
+    <string name="model_list_fail_not_supported">Этот сервис не предоставляет список моделей</string>
+    <string name="model_list_fail_server">Сервис временно работает с ошибками, попробуйте позже</string>
+    <string name="model_list_fail_bad_response">Ответ не удалось разобрать, проверьте базовый URL и тип API</string>
     <string name="cap_vision">Зрение</string>
     <string name="cap_vision_unconfirmed">Зрение · не подтверждено</string>
     <string name="cap_no_tools">Без вызова инструментов</string>

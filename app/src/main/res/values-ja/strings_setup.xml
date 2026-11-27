@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">このプロバイダーのモデル一覧を取得して保存します。メインモデルがまだない場合は、おすすめのモデルにテスト用ツールを一度呼び出させ、成功したときだけメインモデルに設定します。</string>
     <string name="next">次へ</string>
     <string name="model_failed">接続に失敗しました: %1$s</string>
+    <string name="model_list_fail_auth">API キーが無効か、権限がありません</string>
+    <string name="model_list_fail_quota">このアカウントの利用枠を使い切りました</string>
+    <string name="model_list_fail_rate_limited">リクエストが多すぎます。しばらくしてからもう一度お試しください</string>
+    <string name="model_list_fail_network">このアドレスに接続できません。ネットワークとベース URL を確認してください</string>
+    <string name="model_list_fail_not_supported">このサービスはモデル一覧を提供していません</string>
+    <string name="model_list_fail_server">サービスが一時的にエラーを返しています。しばらくしてからもう一度お試しください</string>
+    <string name="model_list_fail_bad_response">返ってきた内容を読み解けません。ベース URL と API の種類を確認してください</string>
     <string name="cap_vision">ビジョン</string>
     <string name="cap_vision_unconfirmed">ビジョン · 未確認</string>
     <string name="cap_no_tools">ツール呼び出し非対応</string>

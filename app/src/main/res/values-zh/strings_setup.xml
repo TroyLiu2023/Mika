@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">获取并保存服务商的模型列表。还没有主模型时，再让推荐的模型试调用一次工具，通过才设为主模型。</string>
     <string name="next">下一步</string>
     <string name="model_failed">连接失败：%1$s</string>
+    <string name="model_list_fail_auth">API Key 无效或没有权限</string>
+    <string name="model_list_fail_quota">账户额度已用完</string>
+    <string name="model_list_fail_rate_limited">请求太频繁,请稍后再试</string>
+    <string name="model_list_fail_network">连不上这个地址,请检查网络和接口地址</string>
+    <string name="model_list_fail_not_supported">这个服务不提供模型列表</string>
+    <string name="model_list_fail_server">服务暂时出错,请稍后再试</string>
+    <string name="model_list_fail_bad_response">返回的内容看不懂,请检查接口地址和接口类型</string>
     <string name="cap_vision">看图</string>
     <string name="cap_vision_unconfirmed">看图 · 未确认</string>
     <string name="cap_no_tools">不支持工具调用</string>

@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">Mika fetches and saves this provider’s model list. If there’s no main model yet, it also asks the recommended model to call a test tool once and makes it the main model only if that works.</string>
     <string name="next">Next</string>
     <string name="model_failed">Connection failed: %1$s</string>
+    <string name="model_list_fail_auth">The API key is invalid or has no permission</string>
+    <string name="model_list_fail_quota">This account’s quota is used up</string>
+    <string name="model_list_fail_rate_limited">Too many requests, try again later</string>
+    <string name="model_list_fail_network">Couldn’t reach this address, check the network and the base URL</string>
+    <string name="model_list_fail_not_supported">This service doesn’t offer a model list</string>
+    <string name="model_list_fail_server">The service is temporarily failing, try again later</string>
+    <string name="model_list_fail_bad_response">The response couldn’t be understood, check the base URL and API type</string>
     <string name="cap_vision">Vision</string>
     <string name="cap_vision_unconfirmed">Vision · unconfirmed</string>
     <string name="cap_no_tools">No tool calling</string>

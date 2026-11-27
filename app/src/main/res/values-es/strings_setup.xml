@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">Mika obtiene y guarda la lista de modelos del proveedor. Si aún no hay modelo principal, pide al modelo recomendado que llame una vez a una herramienta de prueba y solo lo usa como principal si funciona.</string>
     <string name="next">Siguiente</string>
     <string name="model_failed">Falló la conexión: %1$s</string>
+    <string name="model_list_fail_auth">La clave de API no es válida o no tiene permiso</string>
+    <string name="model_list_fail_quota">La cuota de esta cuenta se ha agotado</string>
+    <string name="model_list_fail_rate_limited">Demasiadas solicitudes, inténtalo de nuevo más tarde</string>
+    <string name="model_list_fail_network">No se pudo conectar con esta dirección, comprueba la red y la URL base</string>
+    <string name="model_list_fail_not_supported">Este servicio no ofrece una lista de modelos</string>
+    <string name="model_list_fail_server">El servicio falla temporalmente, inténtalo de nuevo más tarde</string>
+    <string name="model_list_fail_bad_response">No se entendió la respuesta, comprueba la URL base y el tipo de API</string>
     <string name="cap_vision">Visión</string>
     <string name="cap_vision_unconfirmed">Visión · sin confirmar</string>
     <string name="cap_no_tools">Sin llamada a herramientas</string>

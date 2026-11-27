@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">Mika فهرست مدل‌های ارائه‌دهنده را دریافت و ذخیره می‌کند. اگر هنوز مدل اصلی ندارید، از مدل پیشنهادی می‌خواهد یک بار یک ابزار آزمایشی را فراخوانی کند و فقط در صورت موفقیت آن را مدل اصلی می‌کند.</string>
     <string name="next">بعدی</string>
     <string name="model_failed">اتصال ناموفق بود: %1$s</string>
+    <string name="model_list_fail_auth">کلید API نامعتبر است یا دسترسی ندارد</string>
+    <string name="model_list_fail_quota">سهمیهٔ این حساب تمام شده است</string>
+    <string name="model_list_fail_rate_limited">درخواست‌ها بیش از حد است، بعداً دوباره تلاش کنید</string>
+    <string name="model_list_fail_network">اتصال به این نشانی ممکن نشد، شبکه و نشانی پایه را بررسی کنید</string>
+    <string name="model_list_fail_not_supported">این سرویس فهرست مدل ارائه نمی‌کند</string>
+    <string name="model_list_fail_server">سرویس موقتاً خطا می‌دهد، بعداً دوباره تلاش کنید</string>
+    <string name="model_list_fail_bad_response">محتوای دریافتی قابل تشخیص نیست، نشانی پایه و نوع API را بررسی کنید</string>
     <string name="cap_vision">بینایی</string>
     <string name="cap_vision_unconfirmed">بینایی · تأییدنشده</string>
     <string name="cap_no_tools">بدون فراخوانی ابزار</string>

@@ -63,7 +63,7 @@ fun ModelSetupViewModel.signInWithChatGpt() {
                     val options = ModelOptions.ofProvider(p, store.list())
                     (ModelOptions.defaultMain(options) ?: options.firstOrNull()?.id)?.let { m -> use(ModelRole.Main, p, m, options) }
                 }
-                (listed as? ModelListResult.Failed)?.message to (clientId == null)
+                (listed as? ModelListResult.Failed)?.let(ModelsCopy::listFailure) to (clientId == null)
             }
         } catch (e: CancellationException) {
             throw e
@@ -122,7 +122,7 @@ fun ModelSetupViewModel.signInWithAccount(provider: AccountProvider) {
             }
             browser.returnToApp()
             _state.update {
-                it.copy(listing = if (failed != null) it.listing + (p.id to ListState.Failed(failed.message)) else it.listing - p.id)
+                it.copy(listing = if (failed != null) it.listing + (p.id to ListState.Failed(ModelsCopy.listFailure(failed))) else it.listing - p.id)
             }
             signIns.finishAccount(AccountOutcome(provider.target, providerId = p.id))
         } catch (e: CancellationException) {

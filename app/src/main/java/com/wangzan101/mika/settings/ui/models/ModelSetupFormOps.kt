@@ -237,8 +237,7 @@ internal fun ModelSetupViewModel.listFailure(e: Exception): ModelListResult.Fail
     else -> ModelListResult.Failed(ListFailure.of(e), e.message.orEmpty())
 }
 
-internal fun ModelSetupViewModel.listMessage(r: ModelListResult.Failed): String =
-    if (r.reason == ListFailure.IllegalKey) tr(R.string.model_key_illegal_chars) else r.message
+internal fun ModelSetupViewModel.listMessage(r: ModelListResult.Failed): String = ModelsCopy.listFailure(r)
 
 /** 列模型以外的失败给人看的一句。头值不合法时不把异常原文(可能含 Key)露出去。 */
 internal fun ModelSetupViewModel.listFailureText(e: Exception): String = when (e) {

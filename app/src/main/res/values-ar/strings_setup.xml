@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">يجلب Mika قائمة نماذج المزوّد ويحفظها. إن لم يكن هناك نموذج رئيسي بعد، يطلب من النموذج المقترح استدعاء أداة اختبار مرة واحدة، ولا يجعله رئيسيًا إلا إذا نجح ذلك.</string>
     <string name="next">التالي</string>
     <string name="model_failed">فشل الاتصال: %1$s</string>
+    <string name="model_list_fail_auth">مفتاح API غير صالح أو لا يملك صلاحية</string>
+    <string name="model_list_fail_quota">نفدت حصة هذا الحساب</string>
+    <string name="model_list_fail_rate_limited">الطلبات أكثر من اللازم، حاول مرة أخرى لاحقًا</string>
+    <string name="model_list_fail_network">تعذّر الوصول إلى هذا العنوان، تحقّق من الشبكة وعنوان URL الأساسي</string>
+    <string name="model_list_fail_not_supported">هذه الخدمة لا تقدّم قائمة نماذج</string>
+    <string name="model_list_fail_server">الخدمة بها عطل مؤقت، حاول مرة أخرى لاحقًا</string>
+    <string name="model_list_fail_bad_response">تعذّر فهم المحتوى المُرجَع، تحقّق من عنوان URL الأساسي ونوع الواجهة</string>
     <string name="cap_vision">رؤية الصور</string>
     <string name="cap_vision_unconfirmed">رؤية الصور · غير مؤكّد</string>
     <string name="cap_no_tools">بدون استدعاء أدوات</string>

@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">Mika mengambil dan menyimpan daftar model penyedia. Jika belum ada model utama, model yang disarankan diminta memanggil alat uji sekali dan baru dijadikan model utama jika berhasil.</string>
     <string name="next">Berikutnya</string>
     <string name="model_failed">Koneksi gagal: %1$s</string>
+    <string name="model_list_fail_auth">Kunci API tidak valid atau tidak punya izin</string>
+    <string name="model_list_fail_quota">Kuota akun ini sudah habis</string>
+    <string name="model_list_fail_rate_limited">Terlalu banyak permintaan, coba lagi nanti</string>
+    <string name="model_list_fail_network">Tidak bisa terhubung ke alamat ini, periksa jaringan dan URL dasar</string>
+    <string name="model_list_fail_not_supported">Layanan ini tidak menyediakan daftar model</string>
+    <string name="model_list_fail_server">Layanan sedang bermasalah sementara, coba lagi nanti</string>
+    <string name="model_list_fail_bad_response">Isi respons tidak bisa dipahami, periksa URL dasar dan jenis API</string>
     <string name="cap_vision">Visual</string>
     <string name="cap_vision_unconfirmed">Visual · belum dipastikan</string>
     <string name="cap_no_tools">Tanpa pemanggilan alat</string>

@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">O Mika busca e salva a lista de modelos do provedor. Se ainda não houver modelo principal, pede ao modelo recomendado que chame uma ferramenta de teste uma vez e só o define como principal se funcionar.</string>
     <string name="next">Próximo</string>
     <string name="model_failed">Falha na conexão: %1$s</string>
+    <string name="model_list_fail_auth">A chave de API é inválida ou não tem permissão</string>
+    <string name="model_list_fail_quota">A cota desta conta se esgotou</string>
+    <string name="model_list_fail_rate_limited">Muitas solicitações, tente novamente mais tarde</string>
+    <string name="model_list_fail_network">Não foi possível conectar a este endereço, verifique a rede e a URL base</string>
+    <string name="model_list_fail_not_supported">Este serviço não oferece uma lista de modelos</string>
+    <string name="model_list_fail_server">O serviço está falhando temporariamente, tente novamente mais tarde</string>
+    <string name="model_list_fail_bad_response">Não foi possível entender a resposta, verifique a URL base e o tipo de API</string>
     <string name="cap_vision">Visão</string>
     <string name="cap_vision_unconfirmed">Visão · não confirmado</string>
     <string name="cap_no_tools">Sem chamada de ferramentas</string>

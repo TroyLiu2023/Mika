@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">Mika sağlayıcının model listesini alıp kaydeder. Henüz ana model yoksa önerilen modelden bir test aracını bir kez çağırmasını ister ve yalnızca başarılı olursa onu ana model yapar.</string>
     <string name="next">İleri</string>
     <string name="model_failed">Bağlantı başarısız: %1$s</string>
+    <string name="model_list_fail_auth">API anahtarı geçersiz veya yetkisi yok</string>
+    <string name="model_list_fail_quota">Bu hesabın kotası tükendi</string>
+    <string name="model_list_fail_rate_limited">Çok fazla istek var, daha sonra tekrar deneyin</string>
+    <string name="model_list_fail_network">Bu adrese ulaşılamadı; ağı ve temel URL bilgisini kontrol edin</string>
+    <string name="model_list_fail_not_supported">Bu hizmet model listesi sunmuyor</string>
+    <string name="model_list_fail_server">Hizmet geçici olarak hata veriyor, daha sonra tekrar deneyin</string>
+    <string name="model_list_fail_bad_response">Dönen içerik anlaşılamadı, temel URL bilgisini ve API türünü kontrol edin</string>
     <string name="cap_vision">Görüntü</string>
     <string name="cap_vision_unconfirmed">Görüntü · doğrulanmadı</string>
     <string name="cap_no_tools">Araç çağırma yok</string>

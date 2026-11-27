@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">Mika tải và lưu danh sách mô hình của nhà cung cấp này. Nếu chưa có mô hình chính, Mika cũng yêu cầu mô hình được đề xuất gọi một công cụ kiểm tra một lần và chỉ đặt làm mô hình chính nếu kiểm tra đó thành công.</string>
     <string name="next">Tiếp</string>
     <string name="model_failed">Kết nối thất bại: %1$s</string>
+    <string name="model_list_fail_auth">Khóa API không hợp lệ hoặc không có quyền</string>
+    <string name="model_list_fail_quota">Hạn mức của tài khoản này đã dùng hết</string>
+    <string name="model_list_fail_rate_limited">Có quá nhiều yêu cầu, hãy thử lại sau</string>
+    <string name="model_list_fail_network">Không thể kết nối tới địa chỉ này, hãy kiểm tra mạng và URL cơ sở</string>
+    <string name="model_list_fail_not_supported">Dịch vụ này không cung cấp danh sách mô hình</string>
+    <string name="model_list_fail_server">Dịch vụ đang gặp lỗi tạm thời, hãy thử lại sau</string>
+    <string name="model_list_fail_bad_response">Không hiểu nội dung phản hồi, hãy kiểm tra URL cơ sở và loại API</string>
     <string name="cap_vision">Thị giác</string>
     <string name="cap_vision_unconfirmed">Thị giác · chưa xác nhận</string>
     <string name="cap_no_tools">Không gọi được công cụ</string>

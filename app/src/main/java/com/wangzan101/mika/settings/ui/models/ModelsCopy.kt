@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.wangzan101.mika.core.model.chatgpt.SignInFailure
 import com.wangzan101.mika.core.model.GroupStrategy
 import com.wangzan101.mika.core.model.ModelRole
+import com.wangzan101.mika.core.model.ListFailure
+import com.wangzan101.mika.core.model.ModelListResult
 import com.wangzan101.mika.settings.ModelOption
 import com.wangzan101.mika.settings.Provider
 import com.wangzan101.mika.settings.ProviderConfig
@@ -169,6 +171,28 @@ object ModelsCopy {
         SignInFailure.IdToken -> tr(R.string.chatgpt_fail_id_token)
         SignInFailure.NoPlanScope -> tr(R.string.chatgpt_fail_no_plan)
         SignInFailure.Network -> tr(R.string.chatgpt_fail_network)
+    }
+
+    /**
+     * 列模型没成的原因。[ListFailure] 自带的文字只有中文,这里按失败类型取当前界面语言的资源;地址不合法、Key 的字符、
+     * 代理的两种失败和已有的说法是同一件事,直接复用。带细节时仍是「原因(细节)」,细节(服务端或系统的原话)不翻译。
+     */
+    fun listFailure(r: ModelListResult.Failed): String {
+        val reason = when (r.reason) {
+            ListFailure.BadUrl -> tr(R.string.model_url_scheme)
+            ListFailure.Auth -> tr(R.string.model_list_fail_auth)
+            ListFailure.IllegalKey -> tr(R.string.model_key_illegal_chars)
+            ListFailure.Quota -> tr(R.string.model_list_fail_quota)
+            ListFailure.RateLimited -> tr(R.string.model_list_fail_rate_limited)
+            ListFailure.Network -> tr(R.string.model_list_fail_network)
+            ListFailure.ProxyUnreachable -> tr(R.string.net_proxy_unreachable)
+            ListFailure.ProxyAuth -> tr(R.string.net_proxy_auth_failed)
+            ListFailure.NotSupported -> tr(R.string.model_list_fail_not_supported)
+            ListFailure.Server -> tr(R.string.model_list_fail_server)
+            ListFailure.BadResponse -> tr(R.string.model_list_fail_bad_response)
+            else -> r.reason.text
+        }
+        return if (r.detail.isEmpty()) reason else "$reason(${r.detail})"
     }
 
     // ---------- 用账号登录(xAI、OpenRouter;ChatGPT 的在上面) ----------

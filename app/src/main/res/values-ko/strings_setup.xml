@@ -35,6 +35,13 @@
     <string name="model_test_catalog_note">이 제공업체의 모델 목록을 가져와 저장해요. 아직 메인 모델이 없으면 추천 모델에게 테스트 도구를 한 번 호출하게 하고, 성공할 때만 메인 모델로 지정해요.</string>
     <string name="next">다음</string>
     <string name="model_failed">연결에 실패했어요: %1$s</string>
+    <string name="model_list_fail_auth">API 키가 유효하지 않거나 권한이 없어요</string>
+    <string name="model_list_fail_quota">이 계정의 쿼터를 모두 사용했어요</string>
+    <string name="model_list_fail_rate_limited">요청이 너무 많아요. 잠시 후 다시 시도하세요</string>
+    <string name="model_list_fail_network">이 주소에 연결할 수 없어요. 네트워크와 기본 URL을 확인하세요</string>
+    <string name="model_list_fail_not_supported">이 서비스는 모델 목록을 제공하지 않아요</string>
+    <string name="model_list_fail_server">서비스가 일시적으로 오류를 일으키고 있어요. 잠시 후 다시 시도하세요</string>
+    <string name="model_list_fail_bad_response">응답 내용을 이해할 수 없어요. 기본 URL과 API 유형을 확인하세요</string>
     <string name="cap_vision">비전</string>
     <string name="cap_vision_unconfirmed">비전 · 미확인</string>
     <string name="cap_no_tools">도구 호출 없음</string>

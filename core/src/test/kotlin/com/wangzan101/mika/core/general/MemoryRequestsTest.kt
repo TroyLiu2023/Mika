@@ -2,7 +2,9 @@ package com.wangzan101.mika.core.general
 
 import com.wangzan101.mika.core.learn.memory.UserUtterances
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 /**
  * 各语言里让它记、让它改删的说法。每句后面是中文对照,[Sample.want] 为真表示算用户这一轮明确要求了。
@@ -26,7 +28,7 @@ class MemoryRequestsTest {
     }
 
     @Test fun languages() {
-        assertEquals(listOf("zh-en", "ja", "ko", "ru", "es", "pt", "tr", "ar", "fa", "vi", "id"), MemoryRequests.languages)
+        assertEquals(listOf("zh", "en", "ja", "ko", "ru", "es", "pt", "tr", "ar", "fa", "vi", "id"), MemoryRequests.languages)
     }
 
     @Test fun japanese() {
@@ -558,11 +560,43 @@ class MemoryRequestsTest {
         )
         assertEdit(
             "update",
-
+            Sample("Jangan edit catatan itu", false, "那条笔记别改"),
+            Sample("Bunu update etme", false, "这个别更新"),
         )
         assertEdit(
             "delete",
-
+            Sample("Jangan delete catatan itu", false, "那条笔记别删"),
         )
+    }
+
+    // 每句话都要过所有语言块:西语、葡语、土耳其语的词干不能把英文常用词当成让它记、让它改删(quite、tired、silent、editor……)
+    @Test fun englishWordsAreNotReadAsAnotherLanguage() {
+        val english = listOf(
+            "I quite like this one", "I'm tired today", "show me the entire list", "my mom retired last year", "the satire show",
+            "the attire is formal", "a tiresome job", "put it on silent", "the silver car", "silly question", "silicon valley",
+            "exclusive offer", "the editor is open", "the editorial page", "the project was funded", "it was altered",
+            "fusion cuisine", "a guarded answer", "register for the event", "I registered yesterday", "salvage the file",
+            "it is recordable", "the exchange cambio rate",
+        )
+        for (s in english) {
+            assertEquals("[delete]「$s」", false, MemoryRequests.requested("delete", s, listOf(s)))
+            assertEquals("[update]「$s」", false, MemoryRequests.requested("update", s, listOf(s)))
+            assertRemember(Sample(s, false, "英文常用词"))
+        }
+        // 汉字同形:中文的「除去」是「除了」,日文的「を除いて」是「除了」,「短く答えて」是答短点,都不是让它改删
+        assertEdit("delete", Sample("除去周末以外都提醒我", false, "除了周末"), Sample("これを除いて全部教えて", false, "除了这个全告诉我"))
+        assertEdit("update", Sample("短く答えて", false, "回答短一点"))
+    }
+
+    /** 界面每种语言(app 的 values-<语言> 目录,加上默认的英文)都有一块说法;加了界面语言没加说法,或反过来,这里会提醒。 */
+    @Test fun everyUiLanguageHasABlock() {
+        val res = File("../app/src/main/res")
+        assertTrue("找不到 ${res.canonicalPath}", res.isDirectory)
+        val ui = res.listFiles().orEmpty().map { it.name }.filter { it.startsWith("values-") }
+            .map { it.removePrefix("values-").removePrefix("b+").substringBefore('+').substringBefore("-r") }
+            .filter { it.length in 2..3 }
+            .map { if (it == "in") "id" else it }
+            .toSet() + "en"
+        assertEquals(ui.sorted(), MemoryRequests.languages.distinct().sorted())
     }
 }

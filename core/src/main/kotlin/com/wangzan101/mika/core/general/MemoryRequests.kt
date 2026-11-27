@@ -6,7 +6,10 @@ package com.wangzan101.mika.core.general
  * 让改 / 删看引文,不让改删、只是问问看引文所在的整句(模型可能把前面的「别」漏在引文外)。
  */
 private class Phrases(
-    val name: String,
+    /** 这一块管的界面语言(语言代码,同 values-<语言>,印尼语写 id)。 */
+    val languages: List<String>,
+    /** 否定词和英文同形(西语、葡语的 no):它的否定不拿来否决中英文的请求。 */
+    val negationLooksEnglish: Boolean = false,
     val prepare: (String) -> String = { it },
     val save: Regex,
     val recallQuestion: Regex,
@@ -88,7 +91,7 @@ internal object MemoryRequests {
 
 
     private val zhEn = Phrases(
-        name = "zh-en",
+        languages = listOf("zh", "en"),
         save = SAVE_REQUEST,
         recallQuestion = RECALL_QUESTION,
         saveNegation = SAVE_NEGATION,
@@ -102,7 +105,7 @@ internal object MemoryRequests {
 
     // 日本語:覚えておいて、覚えといて、覚えて、記憶して、保存して、忘れないで。「覚えてる?」「覚えてない」是问它记不记得、说自己不记得
     private val ja = Phrases(
-        name = "ja",
+        languages = listOf("ja"),
         save = Regex(
             "覚え(?:て(?!る|ます|ない|い|た|そう|お(?!い|け))|と(?:いて|け)|ろ|さ[せし](?:て|てて))|" +
                 "記憶(?:し(?:て(?!い|た|ます|そう)|といて|ろ|さ[せし](?:て|てて))|に(?:残し|留め|とめ))|" +
@@ -116,7 +119,7 @@ internal object MemoryRequests {
                 "忘れて(?:も)?(?:いい|構わない|かまわない|大丈夫|結構)",
         ),
         update = Regex(
-            "(?:変更|修正|訂正|更新|編集|整理)" + JA_NOT_REQUEST + "|変え|書き換え|書き直し|直して|直す|直し|短く|簡潔に|言い換え|置き換え|リライト",
+            "(?:変更|修正|訂正|更新|編集|整理)" + JA_NOT_REQUEST + "|変え|書き換え|書き直し|直して|直す|直し|短くし|短くまとめ|簡潔に|言い換え|置き換え|リライト",
         ),
         updateNegation = Regex(
             "(?:変更|変え|修正|訂正|更新|編集|整理|直し|直さ)(?:は|を)?(?:し)?(?:ないで|ずに|ない(?![ととなけ])|なくて(?!は|ちゃ)|するな(?![りとで]))|" +
@@ -124,7 +127,7 @@ internal object MemoryRequests {
                 JA_KEEP,
         ),
         delete = Regex(
-            "(?:削除|消去|除去|クリア|破棄)" + JA_NOT_REQUEST + "|消して|消す|消しろ|消しちゃ|削って|削る|削り|取り除いて|取り除く|取り除き|除いて|外して|" +
+            "(?:削除|消去|クリア)" + JA_NOT_REQUEST + "|(?:除去|破棄)(?=し|す)|消して|消す|消しろ|消しちゃ|削って|削る|削り|取り除いて|取り除く|取り除き|外して|" +
                 "捨てて|捨てる|捨てちゃ|忘れて(?!た|しま|まし|ます|い)|忘れろ|忘れといて",
         ),
         deleteNegation = Regex(
@@ -143,7 +146,7 @@ internal object MemoryRequests {
     )
     // 한국어:기억해 줘、기억해 두세요、기억해、저장해 줘、잊지 마세요。「기억나?」「기억해요?」是在问它记不记得
     private val ko = Phrases(
-        name = "ko",
+        languages = listOf("ko"),
         save = Regex(
             koRequest("기억") + "|" + koRequest("저장") + "|" + koRequest("메모") + "|" + koRequest("기록") + "|" +
                 "기억하(?:세요|셔요|셔야|시길|시기|시겠|실래요|실게요|실거예요|자)|기억하고\\s*있(?:어|습)\\s*(?:줘|주세요|주세용|야|요)|" +
@@ -183,7 +186,7 @@ internal object MemoryRequests {
     )
     // Русский:запомни、сохрани、не забудь、возьми на заметку。「ты помнишь?」「вы помните?」是问它记不记得
     private val ru = Phrases(
-        name = "ru",
+        languages = listOf("ru"),
         prepare = { it.lowercase() },
         save = Regex(
             "запомн(?:и(?:те)?${W1}|ить${W1}|инай(?:те)?${W1})|сохран(?:и(?:те)?${W1}|ить${W1}|яй(?:те)?${W1})|" +
@@ -224,12 +227,13 @@ internal object MemoryRequests {
 
     // Español:recuerda、acuérdate、guarda、apunta、no olvides。「¿te acuerdas?」「¿recuerdas?」是问它记不记得
     private val es = Phrases(
-        name = "es",
+        languages = listOf("es"),
+        negationLooksEnglish = true,
         prepare = { it.lowercase() },
         save = Regex(
-            "recu[eé]rd|record(?!(?:ed|ing|er|ists?|ings?)${W1})(?:a|e|ad|ar|á)|acu[eé]rd|memoriz(?:a|e|ad|ar|á)|" +
-                "gu[aá]rd(?:a|e|ad|ar|á|ó|ando)|ap[uú]nt(?:a|e|ad|ar|á)(?!\\s*(?:a|hacia))|an[oó]t(?:a|e|ad|ar|á)|" +
-                "s[aá]lv(?:a|e|ad|ar|á)(?!\\p{L}*tion)|almacen(?:a|e|ad|ar|á)|a[nñ]ad\\p{L}*\\s+(?:a\\s+|en\\s+)?(?:tu\\s+|la\\s+|esa\\s+)?memoria|" +
+            "${W0}(?:recu[eé]rd|record(?:a|e|es|ad|ar|á)$ES_CL${W1}|acu[eé]rd|memoriz(?:a|e|ad|ar|á)|" +
+                "gu[aá]rd(?:a|e|es|ad|ar|á|ó|ando)$ES_CL${W1}|ap[uú]nt(?:a|e|es|ad|ar|á)$ES_CL${W1}(?!\\s*(?:a|hacia))|an[oó]t(?:a|e|es|ad|ar|á)$ES_CL${W1}|" +
+                "s[aá]lv(?:a|e|es|ad|ar|á)$ES_CL${W1}|almacen(?:a|e|ad|ar|á))|a[nñ]ad\\p{L}*\\s+(?:a\\s+|en\\s+)?(?:tu\\s+|la\\s+|esa\\s+)?memoria|" +
                 "ten\\s+(?:lo\\s+)?presente|" +
                 "no\\s+(?:se\\s+te\\s+|te\\s+)?(?:lo\\s+|la\\s+|los\\s+|las\\s+|le\\s+|les\\s+)?olvid(?:e|es)${W1}",
         ),
@@ -243,12 +247,14 @@ internal object MemoryRequests {
                 "olv[ií]d(?:a|ide|ida)(?:l[oa]s?|me|te|se|nos|te)${W1}|olv[ií]date${W1}",
         ),
         update = Regex(
-            "actualiz|cambi|modifi[cf]|corri[gi]|correcci[oó]n|edit(?:a|ar|[áoó]|ic[ií])|reescrib|reformul|acort|simplif|fusion|combin|" +
-                "reemplaz|sustitu|aj[uú]st(?:a|e${W1}|ar|á)|rectifiqu|rectific",
+            "${W0}(?:actualiz|c[aá]mbi(?:a|e|es|ad|ar|á|ando)$ES_CL${W1}|modifi[cf]|corri[gi]|correcci[oó]n|edit(?:a|e|es|ar|á|ó)$ES_CL${W1}|edici[oó]n|" +
+                "reescrib|reformul|acort|simplif|fusion(?:a|e|es|ar|á)$ES_CL${W1}|combin(?:a|e|es|ar|á)$ES_CL${W1}|" +
+                "reemplaz|sustitu|aj[uú]st(?:a|e${W1}|ar|á)|rectifiqu|rectific)",
         ),
         updateNegation = Regex(esNegated(ES_UPDATE_WORDS)),
         delete = Regex(
-            "borr(?!ch|dor)(?:a|e|ad|ar|á|ó)|elimin|suprim|remov|remuev|quit(?:a|e|ar|á)|" +
+            "${W0}(?:borr(?!ch|dor)(?:a|e|ad|ar|á|ó)|elimin|suprim|remov|remuev|(?!quite${W1})qu[ií]t(?:a|e|es|ar|á)$ES_CL${W1}|" +
+                "quite\\s+(?:eso|esto|esa|ese|aquello|de|el|la|lo|los|las|mi|mis|tu|tus)${W1})|" +
                 "olv[ií]d(?:a|e|ad|ar|á)(?:l[oa]s?|me|te|se|n|nos|mos)?${W1}|desh[aá]c\\p{L}*\\s+de|deshaz\\s+de",
         ),
         deleteNegation = Regex(esNegated(ES_DELETE_WORDS)),
@@ -266,12 +272,13 @@ internal object MemoryRequests {
 
     // Português:lembra、lembre-se、guarda、salva、anota、não esqueça。「você lembra?」「lembra disso?」是问它记不记得
     private val pt = Phrases(
-        name = "pt",
+        languages = listOf("pt"),
+        negationLooksEnglish = true,
         prepare = { it.lowercase() },
         save = Regex(
             "lembr(?!ete)(?:e|ad|ar|á)|lembra(?!\\s+(?:de|do|da|dos|das|desse|dessa|disso|daquel\\p{L}*|dest\\p{L}*|disto|daqui))|" +
-                "guard(?:a|e|ad|ar|á)|salv(?:a|e|ad|ar|á)|anot(?:a|e|ad|ar|á)|apont(?:a|e|ad|ar|á)|memoriz(?:a|e|ad|ar|á)|" +
-                "regist(?:a|e|ad|ar|á)|armazen(?:a|e|ad|ar|á)|adicion\\p{L}*\\s+(?:à|a|na|em)\\s+(?:tua\\s+|sua\\s+)?mem[oó]ria|" +
+                "${W0}(?:guard(?:a|e|es|em|ad|ar|á)|salv(?:a|e|es|em|ad|ar|á)|anot(?:a|e|es|em|ad|ar|á)|apont(?:a|e|es|em|ad|ar|á)|" +
+                "regist(?:r?(?:a|e|es|em|ar|á)))$PT_CL${W1}|memoriz(?:a|e|ad|ar|á)|armazen(?:a|e|ad|ar|á)|adicion\\p{L}*\\s+(?:à|a|na|em)\\s+(?:tua\\s+|sua\\s+)?mem[oó]ria|" +
                 "tem\\s+(?:isso\\s+)?em\\s+mente|" +
                 "n[aã]o\\s+(?:se\\s+|te\\s+)?(?:va\\s+(?:se\\s+)?)?esque[cç](?:a|as)${W1}",
         ),
@@ -284,12 +291,14 @@ internal object MemoryRequests {
                 "sem\\s+(?:lembrar|guardar|salvar|anotar|registrar|armazenar)|esquec(?:e${W1}|e\\s+(?:isso|isto|aquilo|de\\s+isso))",
         ),
         update = Regex(
-            "mud(?:a|e|ad|ar|á)|alter(?:a|e|ad|ar|á)|modif(?:ic|iqu)|atualiz|corr(?:ij|ig)|edit(?:a|ar|[áoó])|reescrev|reformul|encurt|simplif|" +
-                "fund(?:e|ir|amos)|junt(?:a|e|ar)|combin|substitu|troc(?:a|e|ar|á)",
+            "${W0}(?:(?:mud(?:a|e|es|em|ar|á)|alter(?:a|e|es|em|ar|á)|edit(?:a|e|es|em|ar|á)|fund(?:a|e|em|ir|amos)|junt(?:a|e|em|ar)|" +
+                "combin(?:a|e|es|em|ar|á)|troc(?:a|e|ar|á))$PT_CL${W1}|modif(?:ic|iqu)|atualiz|corr(?:ij|ig)|reescrev|reformul|encurt|simplif|substitu)",
         ),
         updateNegation = Regex(ptNegated(PT_UPDATE_WORDS)),
         delete = Regex(
-            "apag|delet|elimin|esquec(?:e|a)(?:mos|me|te|se|l[oa]s?)?${W1}|remov|tir(?:a|e|ar|á)|exclu|descart|limp(?:a|e|ar|á)",
+            "${W0}(?:apag|delet|elimin|esquec(?:e|a)(?:mos|me|te|se|l[oa]s?)?${W1}|remov|(?!tire${W1})tir(?:a|e|em|ar|á)$PT_CL${W1}|" +
+                "tire\\s+(?:isso|isto|esse|essa|esses|essas|aquilo|aquele|aquela|o|os|as|da|do|das|dos|de|meu|minha)${W1}|exclu(?!s)|descart|" +
+                "limp(?:a|e|em|ar|á)$PT_CL${W1})",
         ),
         deleteNegation = Regex(ptNegated(PT_DELETE_WORDS)),
         hypothetical = Regex(
@@ -304,7 +313,7 @@ internal object MemoryRequests {
 
     // Türkçe:hatırla、aklında tut、hafızana al、not al、kaydet、unutma。「hatırlıyor musun?」「hatırladın mı?」是问它记不记得
     private val tr = Phrases(
-        name = "tr",
+        languages = listOf("tr"),
         prepare = { it.lowercase().replace("\u0307", "") },
         save = Regex(
             "(?:hat[ıi]rla(?:y[ıi]n(?:[ıi]z)?|y[ıi]m|yabilir|y[eae]bilir|y[ıi]ver|y[ıi]verir)?|akl[ıi]nda\\s*(?:tut|bulundur|kals[ıi]n|dursun|sakla)|" +
@@ -334,7 +343,7 @@ internal object MemoryRequests {
                 "(?:de[ğg]i[şs]tirmek|g[uü]ncellemek|d[uü]zenlemek)\\s*istemi\\w*|" + TR_KEEP,
         ),
         delete = Regex(
-            "${W0}(?:sil(?!a)|kald[ıi]r|[çc][ıi]kar|temizle|yok\\s*et)|unut(?:sun|sana|sunlar)?${W1}|" +
+            "${W0}(?:sil(?:in(?:iz)?|sin(?:ler)?|sene|ebilir\\p{L}*|elim|iver|meni|mesini|mek|me)?${W1}|kald[ıi]r|[çc][ıi]kar|temizle|yok\\s*et)|unut(?:sun|sana|sunlar)?${W1}|" +
                 "unut\\s*(?:gitsin|uver)|unutmas[ıi]n[ıi]\\s*istiyorum|unutman[ıi]\\s*istiyorum|unutmas[ıi]\\s*gerek",
         ),
         deleteNegation = Regex(
@@ -355,7 +364,7 @@ internal object MemoryRequests {
 
     // العربية:احفظ、تذكّر、احتفظ بهذا、خزّن、سجّل、لا تنسَ。「هل تتذكر؟」是问它记不记得。一般不标元音,同形词多(تذكرة 票、تذكير 提醒),逐个排掉
     private val ar = Phrases(
-        name = "ar",
+        languages = listOf("ar"),
         prepare = { AR_DIACRITICS.replace(it, "") },
         save = Regex(
             "${AR_W0}(?:احفظ|احتفظ(?!ت)|تذكر(?!ة|ات|ير|ت|نا)|خزن|سجل(?!ات))|" +
@@ -397,7 +406,7 @@ internal object MemoryRequests {
 
     // فارسی:به خاطر بسپار、یادت باشه、یادت نره、فراموش نکن、ذخیره کن、یادداشت کن。「یادته؟」「به یاد داری؟」是问它记不记得
     private val fa = Phrases(
-        name = "fa",
+        languages = listOf("fa"),
         prepare = { it.replace('\u200C', ' ') },
         save = Regex(
             "به\\s*خاطر\\s*(?:بسپار|بنداز|نگه\\s*دار)|به\\s*یاد\\s*(?:داشته\\s*باش|نگه\\s*دار|بسپار)|یادت\\s*(?:باشه|باشد|بمونه|نره|مونه)|یادتون\\s*(?:باشه|باشد|بمونه|نره)|" +
@@ -440,7 +449,7 @@ internal object MemoryRequests {
 
     // Tiếng Việt:hãy nhớ、nhớ giúp、ghi nhớ、lưu lại、đừng quên。「còn nhớ không?」「bạn có nhớ…?」是问它记不记得。必须带声调符号才认(去掉后 nhớ/nhờ/nhỏ 同形)
     private val vi = Phrases(
-        name = "vi",
+        languages = listOf("vi"),
         prepare = { it.lowercase() },
         save = Regex(
             "hãy\\s+nhớ|nhớ\\s+(?:giúp|giùm|gium|hộ|hỗ|dùm|dum|lấy|đi|nhé|nha|nè|cho|kỹ|vô|vào|thôi|đấy)(?!\\p{L})|ghi\\s+nhớ|lưu\\s+(?:lại|vô|vào|giúp|giùm|hộ|dùm|cho)|" +
@@ -477,7 +486,7 @@ internal object MemoryRequests {
 
     // Bahasa Indonesia:ingat、catat、simpan、hafalkan、jangan lupa。「kamu ingat nggak?」「masih ingat?」是问它记不记得
     private val id = Phrases(
-        name = "id",
+        languages = listOf("id"),
         prepare = { it.lowercase() },
         save = Regex(
             "(?:tolong|mohon)\\s+(?:ingat|diingat|disimpan|dicatat)|harap\\s+diingat|diingat\\s+ya|ingat\\s+(?:ini|itu|ya|selalu|terus|baik-baik|dengan\\s+baik|bahwa|soal|soalnya)(?!\\p{L})|" +
@@ -516,13 +525,11 @@ internal object MemoryRequests {
         ),
     )
 
+    /** 中英文以外的各块。新加一种语言:上面写一块,加进这里,再在 MemoryRequestsTest 里给它一组句子。 */
     private val others = listOf(ja, ko, ru, es, pt, tr, ar, fa, vi, id)
 
-    /** 认得哪几种语言;顺序即块在文件里的顺序。 */
-    internal val languages: List<String> get() = (listOf(zhEn) + others).map { it.name }
-
-    /** 西语、葡语的否定词 no / não 和英文的 no 同形,它们的否定不能拿来否决中英文的请求。 */
-    private val englishShapedNegation = setOf("es", "pt")
+    /** 认得哪几种界面语言;MemoryRequestsTest 拿它对照 app 的 values-<语言> 目录,两边不能脱节。 */
+    internal val languages: List<String> get() = (listOf(zhEn) + others).flatMap { it.languages }
 
     /**
      * 这半句话让它记了没有。中英文有说法时按原来的规矩定,只是别的语言里否定词不与中英文撞形的(「保存しないで」「jangan save」)
@@ -531,7 +538,7 @@ internal object MemoryRequests {
      */
     fun asksToRemember(clause: String): Boolean {
         val c = clause.replace('’', '\'')
-        zhEn.asksToRemember(c)?.let { own -> return own && others.none { it.name !in englishShapedNegation && it.negatesRemember(c) } }
+        zhEn.asksToRemember(c)?.let { own -> return own && others.none { !it.negationLooksEnglish && it.negatesRemember(c) } }
         return others.any { it.asksToRemember(c) == true } && others.none { it.negatesRemember(c) }
     }
 
@@ -541,7 +548,7 @@ internal object MemoryRequests {
             if (messages.any { zhEn.negates(op, it) || zhEn.onlyAsking(it) }) return false
             return messages.none { m ->
                 val c = m.replace('’', '\'')
-                others.any { it.onlyAsking(c) || (it.name !in englishShapedNegation && it.negates(op, c)) }
+                others.any { it.onlyAsking(c) || (!it.negationLooksEnglish && it.negates(op, c)) }
             }
         }
         val q = quote.replace('’', '\'')
@@ -614,6 +621,12 @@ private fun ruNegated(verbs: String) =
 private const val ES_GAP =
     "(?:(?:quiero|queres|quero|precisa|preciso|necesito|necesario|hace|falta|vayas|favor|você|voce|usted|senhor|senhora|isso|isto|esto|este|esta|esse|essa|ese|esa|eso|" +
     "aquele|aquela|aquell|meu|minha|nada|todo|tudo|tus|teus|tuas|los|las|les|lhe|que|por|como|assim|asi|de|em|en|mi|mis|lo|la|le|me|te|nos|se|tu|es|é|va|vá|a|e)\\s*){0,6}"
+
+/** 动词后面直接黏着的宾语代词(guárdalo、cámbiamelo);用在要求词尾完整的那些动词上,免得 guarded、editor 这类英文词被当成西语。 */
+private const val ES_CL = "(?:me|te|se|nos|os|l[oa]s?|les?){0,2}"
+
+/** 葡语动词后用连字符接的宾语代词(guarda-o、tire-me)。 */
+private const val PT_CL = "(?:-(?:o|a|os|as|lo|la|los|las|me|te|se|nos|lhe|lhes))?"
 
 private const val ES_UPDATE_WORDS = "actualiz|cambi|modifi|corri|correcci|edit|reescrib|reformul|acort|simplif|fusion|combin|reemplaz|sustitu|ajust|rectifiqu|rectific|toqu|tires"
 

@@ -368,7 +368,7 @@ The MCP client passes each connected server's `instructions` to the model as bou
 - **熄屏执行**:系统闹钟是 `setExactAndAllowWhileIdle`(没有精确闹钟授权时退回 `setAndAllowWhileIdle`,安卓 12 起这种闹钟可能起不了前台服务,起不了就按启动失败照实告知),闹钟广播 `goAsync` 期间系统撑着 CPU;派发方 `TaskService.startTrigger` 先拿 `TriggerHandoffWake`(进程一把 PARTIAL 锁,60 秒上限),服务处理完这次启动(开跑、排队或因暂停不开)就放开。任务开跑当场拿自己那份 CPU 锁(`TaskService.cpuWake`,`SharedWakeLock` 分份;`KeepAwake(keepThroughEnd = true)` 按任务状态拿放:等你处理过了宽限就放开,终态后撑到结果送达、任务协程结束);工作流认领步骤到交给任务之间另持一份。留着的网页不持有 CPU 锁。亮屏只经解锁流程(内置助手的唤醒键)做,不给任何界面加 turnScreenOn/showWhenLocked。
 - **暂停 Mika 时**:到期的窗口一律记为跳过(`PauseFlag.REASON`),照常推进到下一次;`whenIdle` 的也不等恢复;恢复后不补跑(见 §2「暂停 Mika」)。
 - **进程中途被杀**:提醒重新送达(按编号去重);其他已认领的窗口标为结果不明,在原对话里说明并通知「Mika 不会自动重复操作」。
-- **计划页**(`app/task/ui/PlansScreen.kt`):分「进行中」「已停用」两段,每条三行(做什么、重复规则与下次时间或状态、上次结果:跳过的分「条件未满足」「条件未变化」「冷却期内」,那次检查记下了值时一起显示),右边开关即暂停与恢复;点一行升起操作面板:看对话、立即执行、编辑、删除；右上角可以直接新建。编辑器的每天/每周时刻支持逗号分隔，并预览接下来三次。
+- **计划页**(`app/task/ui/PlansScreen.kt`):分「进行中」「已停用」两段,每条三行(做什么、重复规则与下次时间或状态、上次结果:跳过的分「条件未满足」「条件未变化」「冷却期内」,那次检查记下了值时一起显示),右边开关即暂停与恢复;点一行升起操作面板:看对话、立即执行、编辑、删除；右上角可以直接新建。编辑器(`PlanEditorDialog`,草稿 `PlanDraft` 是唯一真源)不用打字:日期、钟点走选择器(`PlanTimePicker.kt`,12/24 小时制跟系统设置,上午/下午的写法和位置跟界面语言,钟点格式由 `PlanTimeFormat.timePattern` 从语言的短时间格式换算),每天/每周可加多个钟点,快捷时间从点下的那一刻算;时区选择(`PlanTimezonePicker.kt`)按界面语言显示城市名,本地化名字在后台建一次索引,可按城市、编号或偏移(「+8」「GMT+5:30」)搜;预览接下来三次。「熄屏时运行」卡(`ScreenOffSetup.kt`,计划页底部和编辑器的任务模式里)只读列出精确闹钟、电池策略(受限 / 优化 / 不受限,跳系统标准设置页)和锁屏解锁就绪情况(判断与 `RunPhoneStage` 实际走的分流一致),解锁凭据在开了 `SecureFlagPolicy.SecureOn` 的对话框里用 `DeviceAccessSection` 设。
 
 ## 11. 知识与技能
 
